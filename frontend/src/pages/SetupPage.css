@@ -1,0 +1,28 @@
+/* ─── SetupPage.css ──────────────────────────────────────────────────────────
+   Styles specific to the Playbook Setup page (Step 1).
+   Global styles (cards, buttons, inputs, grid, etc.) live in App.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Adds a small top margin to the textarea inside each guide card */
+.guide-textarea {
+  margin-top: 10px;
+}
+
+/* Small helper text shown inside the upload zone when no file is selected */
+.upload-hint {
+  font-size: 11px;
+  margin-top: 4px;
+  color: var(--text3);
+}
+
+/* The hidden <input type="file"> element — triggered programmatically */
+.hidden-input {
+  display: none;
+}
+
+/* Aligns the Continue button to the right */
+.setup-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

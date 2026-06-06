@@ -1,0 +1,57 @@
+/* ─── AccountsPage.css ───────────────────────────────────────────────────────
+   Styles specific to the Account List page (Step 2).
+   Global styles (cards, buttons, table, tags, etc.) live in App.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Keeps the "Import CSV" sub-label flush with no extra bottom margin */
+.accounts-import-sub {
+  margin: 0;
+}
+
+/* Row of buttons below the CSV textarea */
+.accounts-import-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Adds a top margin before the manual-add grid fields */
+.accounts-manual-fields {
+  margin-top: 12px;
+}
+
+/* Adds bottom margin to keep the table header separated from the rows */
+.accounts-table-header {
+  margin-bottom: 16px;
+}
+
+/* Company name styling inside the table */
+.accounts-company-name {
+  font-size: 13px;
+}
+
+/* Secondary note text below the company name */
+.accounts-company-notes {
+  color: var(--text3);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* Sub-text below the contact name */
+.accounts-contact-title {
+  color: var(--text3);
+  font-size: 11px;
+}
+
+/* Monospace font for email addresses */
+.accounts-email {
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* Pushes the Continue button to the right */
+.accounts-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

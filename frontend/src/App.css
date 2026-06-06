@@ -539,6 +539,32 @@ input::placeholder {
   letter-spacing: 0.05em;
 }
 
+/* ── Sidebar footer ── */
+
+/* Pushes the footer to the bottom of the sidebar */
+.sidebar-spacer {
+  flex: 1;
+}
+
+/* Container for the phase description and reset button */
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+
+/* Small descriptive text about the current phase */
+.sidebar-footer-text {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--mono);
+  line-height: 1.6;
+}
+
+/* Reset button sits below the phase text */
+.sidebar-reset-btn {
+  margin-top: 12px;
+}
+
 /* Step progress */
 .step-indicator {
   display: flex;
