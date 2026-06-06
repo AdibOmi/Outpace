@@ -1,0 +1,94 @@
+/* ─── RunPage.css ─────────────────────────────────────────────────────────────
+   Styles specific to the Run Campaign page (Step 3).
+   Global styles (cards, buttons, progress bar, log entries, etc.) live in App.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Bottom margin below the three stat cards */
+.run-stats {
+  margin-bottom: 24px;
+}
+
+/* Stat number colours — match the semantic meaning of each metric */
+.run-stat-pending { color: var(--text2); }
+.run-stat-sent    { color: var(--accent3); }
+.run-stat-error   { color: var(--danger); }
+
+/* Keeps the campaign-controls sub-label flush */
+.run-controls-sub {
+  margin: 0;
+}
+
+/* Adds a bottom margin to the controls header */
+.run-controls-header {
+  margin-bottom: 16px;
+}
+
+/* Percentage label beside the progress bar */
+.run-progress-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text2);
+  min-width: 36px;
+}
+
+/* Dark panel that appears after a run — summarises the outcome */
+.run-summary {
+  margin-top: 12px;
+  background: #111;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+  line-height: 2;
+}
+
+.run-summary-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+/* Scrollable live log area shown during / after a campaign run */
+.run-log-container {
+  margin-top: 14px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--bg);
+  border-radius: var(--r);
+  padding: 10px 14px;
+}
+
+/* Bottom margin on the results-list heading */
+.run-results-heading {
+  margin-bottom: 16px;
+}
+
+/* A single row in the results list */
+.run-result-row {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+}
+
+/* Company name inside a result row */
+.run-result-company {
+  font-size: 13px;
+}
+
+/* Contact + email beside the company name */
+.run-result-contact {
+  color: var(--text3);
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+/* Research angle shown below the company/contact row */
+.run-result-angle {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--mono);
+  margin-top: 6px;
+}
+
+/* Adds a top margin when the email preview expands */
+.run-email-preview {
+  margin-top: 10px;
+}
