@@ -1,0 +1,71 @@
+/* ─── FeedbackPage.css ───────────────────────────────────────────────────────
+   Styles specific to the Review & Feedback page (Step 4).
+   Global styles (cards, buttons, email-preview, etc.) live in App.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Empty-state card — centred mono text when no results exist yet */
+.feedback-empty {
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: center;
+  padding: 48px;
+}
+
+/* Spacing below the company name + rating button row */
+.feedback-card-header {
+  margin-bottom: 16px;
+}
+
+/* Large company name at the top of each card */
+.feedback-company {
+  font-size: 16px;
+}
+
+/* Contact / title / industry sub-line */
+.feedback-contact {
+  color: var(--text3);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Dark panel containing the structured research brief */
+.feedback-research-panel {
+  background: #111;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feedback-research-title {
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* Each section (Pain Points, Opportunity, etc.) inside the research panel */
+.feedback-research-section {
+  margin-bottom: 10px;
+}
+
+/* Body text inside a research section */
+.feedback-research-body {
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* Pain-points bullet list */
+.feedback-pain-list {
+  margin-top: 6px;
+  padding-left: 20px;
+}
+
+/* Small gap between the email preview and the feedback textarea */
+.feedback-email-preview {
+  margin-bottom: 10px;
+}
+
+/* Remove the bottom margin from the last field in a card */
+.feedback-notes-field {
+  margin-bottom: 0;
+}
