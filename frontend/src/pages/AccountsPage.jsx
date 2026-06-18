@@ -181,7 +181,15 @@ export default function AccountsPage({ accounts, setAccounts, onNext }) {
             </h3>
             <button
               className="btn btn-danger btn-sm"
-              onClick={() => setAccounts([])}
+              // onClick={() => setAccounts([])}
+              onClick={()=>{
+                const confirmed = window.confirm(
+                  "Are you sure you want to delete all accounts?"
+                );
+                if(!confirmed) return;
+                setAccounts([]);
+                setRunResults([]);
+              }}
             >
               Clear all
             </button>

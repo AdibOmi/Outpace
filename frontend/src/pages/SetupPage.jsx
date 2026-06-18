@@ -1,25 +1,55 @@
-// ─── SetupPage.jsx ────────────────────────────────────────────────────────────
 // Step 1 of the workflow.
-// The user fills in their service description, ICP, and sender info,
-// then uploads (or pastes) their research and outreach guides.
-// The "Continue" button stays disabled until the three required fields are filled.
+// This page collects what the company does, who they sell to (ICP),
+// sender info, research methodology, outreach methodology
+// succesful email templates (optional)
 
-import { useState } from "react";
+// Basically teaching the agent how the client sells before allowing it to generate outreach
+
+
+
+import { useRef, useState } from "react";
 import "./SetupPage.css";
 
 export default function SetupPage({ config, setConfig, onNext }) {
   // Track which files have been uploaded (for the upload-zone label)
+  // Config is the shared data object for the entire app (service description, templates, etc)
   const [fileNames, setFileNames] = useState({
     research: null,
     outreach: null,
   });
 
+  //using these to avoid DOM access (React way is less fragile)
+  const researchInputRef = useRef(null);
+  const outreachInputRef = useRef(null);
+
+
   // ── File upload handler ──────────────────────────────────────────────────
   // Reads the chosen file as plain text and stores it in the shared `config`.
   // `key` is the config field to update ("researchGuide" or "outreachGuide").
+  
   const handleFile = (key) => (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // to allow larger files 
+  const allowedTypes = ["text/plain", "text/markdown"];
+  const allowedExtensions = [".txt", ".md"];
+  const hasAllowedExtension = allowedExtensions.some((ext) =>
+    file.name.toLowerCase().endsWith(ext)
+  );
+
+  if (!allowedTypes.includes(file.type) && !hasAllowedExtension) {
+    alert("Please upload only .txt or .md files.");
+    e.target.value = "";
+    return;
+  }
+
+  if (file.size > 500000) {
+    alert("File is too large. Please upload a file under 500KB.");
+    e.target.value = "";
+    return;
+  }
+
 
     const reader = new FileReader();
     reader.onload = (ev) => {
@@ -28,10 +58,14 @@ export default function SetupPage({ config, setConfig, onNext }) {
     };
     reader.readAsText(file);
   };
+  // e.g user uploads research-guide.txt, the text (not the file) is stored in config.researchGuide
 
-  // The Continue button requires these three fields to be non-empty
+
+  // The Continue button requires these four fields
   const ready =
-    config.researchGuide && config.outreachGuide && config.serviceDescription;
+    config.researchGuide && config.outreachGuide && config.serviceDescription && config.icp;
+
+
 
   return (
     <div>
@@ -94,7 +128,7 @@ export default function SetupPage({ config, setConfig, onNext }) {
           {/* Clicking the zone triggers the hidden file input */}
           <div
             className={`upload-zone${fileNames.research ? " filled" : ""}`}
-            onClick={() => document.getElementById("res-input").click()}
+           onClick={() => researchInputRef.current?.click()}
           >
             <p>
               {fileNames.research
@@ -110,9 +144,9 @@ export default function SetupPage({ config, setConfig, onNext }) {
           <input
             id="res-input"
             type="file"
-            accept=".txt,.md"
+            accept=".txt,.md,text/plain,text/markdown"
             className="hidden-input"
-            onChange={handleFile("researchGuide")}
+            onChange={handleFile("researchGuide", "research")}
           />
 
           <textarea
@@ -133,7 +167,7 @@ export default function SetupPage({ config, setConfig, onNext }) {
 
           <div
             className={`upload-zone${fileNames.outreach ? " filled" : ""}`}
-            onClick={() => document.getElementById("out-input").click()}
+            onClick={() => outreachInputRef.current?.click()}
           >
             <p>
               {fileNames.outreach
@@ -145,12 +179,12 @@ export default function SetupPage({ config, setConfig, onNext }) {
             )}
           </div>
 
-          <input
-            id="out-input"
+         <input
+            ref={outreachInputRef}
             type="file"
-            accept=".txt,.md"
+            accept=".txt,.md,text/plain,text/markdown"
             className="hidden-input"
-            onChange={handleFile("outreachGuide")}
+            onChange={handleFile("outreachGuide", "outreach")}
           />
 
           <textarea
