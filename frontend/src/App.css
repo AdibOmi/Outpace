@@ -75,7 +75,7 @@ body {
 }
 
 .sidebar-logo h1 {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -660,3 +660,118 @@ select:focus {
   border-color: var(--border-active);
 }
 
+
+
+
+/* Sidebar and Navigation to Campaigns */
+.sidebar-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+
+
+.active-campaign-box {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.new-campaign-btn {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.new-campaign-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+
+.campaign-history-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+
+.campaign-history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.campaign-history-row.active {
+  border-color: var(--accent);
+}
+
+.campaign-history-name {
+  flex: 1;
+  padding: 11px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  text-align: left;
+}
+
+.campaign-history-row.active .campaign-history-name {
+  color: var(--accent);
+}
+
+.campaign-delete-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 6px;
+  color: var(--text2);
+}
+
+
+
+.campaign-rename-input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--accent, #666);
+  border-radius: 4px;
+  color: inherit;
+  font-size: inherit;
+  padding: 2px 6px;
+  outline: none;
+}
+
+.campaign-rename-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.6;
+  font-size: 14px;
+}
+.campaign-rename-btn:hover { opacity: 1; }

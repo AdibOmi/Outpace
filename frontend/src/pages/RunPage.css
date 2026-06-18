@@ -3,15 +3,23 @@
    Global styles (cards, buttons, progress bar, log entries, etc.) live in App.css.
    ─────────────────────────────────────────────────────────────────────────── */
 
-/* Bottom margin below the three stat cards */
+/* Four-column stat card grid */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* Bottom margin below the stat cards */
 .run-stats {
   margin-bottom: 24px;
 }
 
 /* Stat number colours — match the semantic meaning of each metric */
-.run-stat-pending { color: var(--text2); }
-.run-stat-sent    { color: var(--accent3); }
-.run-stat-error   { color: var(--danger); }
+.run-stat-pending  { color: var(--text2); }
+.run-stat-progress { color: var(--warn); }
+.run-stat-sent     { color: var(--accent3); }
+.run-stat-error    { color: var(--danger); }
 
 /* Keeps the campaign-controls sub-label flush */
 .run-controls-sub {

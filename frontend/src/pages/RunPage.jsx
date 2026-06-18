@@ -65,12 +65,22 @@ Return a JSON object (no markdown) with:
 
   // ── Main campaign loop ────────────────────────────────────────────────────
   const runCampaign = async () => {
+
+    localStorage.removeItem("feedback");
+
+      // Clear previous campaign
+    setRunResults([]);
+    setResults([]);
+    localStorage.removeItem("runResults");
+    
     abortRef.current = false;
     setRunning(true);
     setDone(false);
     setLogs([]);
-    setResults([]);
     setProgress(0);
+    
+    setCampaignStats(null);
+    localStorage.removeItem("runResults");
 
     const pending = accounts.filter((a) => a.status === "pending");
 
@@ -125,6 +135,9 @@ Return a JSON object (no markdown) with:
 
         // ── Step 2: Draft email ─────────────────────────────────────────────
         addLog(`[${acct.company}] Drafting personalised email...`);
+        setAccounts((prev) =>
+            prev.map((a) => (a.id === acct.id ? { ...a, status: "drafting" } : a))
+          );
 
         const emailRaw = await callClaude(
           EMAIL_SYSTEM,
@@ -199,6 +212,7 @@ Return a JSON object (no markdown) with:
   const sentCount    = accounts.filter((a) => a.status === "sent").length;
   const errorCount   = accounts.filter((a) => a.status === "error").length;
   const pendingCount = accounts.filter((a) => a.status === "pending").length;
+  const inProgressCount = accounts.filter((a) => a.status === "researching" || a.status === "drafting").length;
 
   return (
     <div>
@@ -212,11 +226,15 @@ Return a JSON object (no markdown) with:
       </div>
 
       {/* ── Stat cards (pending / sent / errors) ── */}
-      <div className="grid-3 run-stats">
+      <div className="grid-4 run-stats">
         <div className="stat-card">
           <div className="num run-stat-pending">{pendingCount}</div>
           <div className="lbl">pending</div>
         </div>
+        <div className="stat-card">
+            <div className="num run-stat-progress">{inProgressCount}</div>
+            <div className="lbl">in progress</div>
+          </div>
         <div className="stat-card">
           <div className="num run-stat-sent">{sentCount}</div>
           <div className="lbl">sent</div>
