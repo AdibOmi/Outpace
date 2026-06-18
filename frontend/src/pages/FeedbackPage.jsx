@@ -5,15 +5,19 @@
 //   - Leave free-text notes so the agent can improve next time.
 // If no results exist yet, an empty-state message is shown instead.
 
-import { useState } from "react";
 import "./FeedbackPage.css";
 
-export default function FeedbackPage({ results }) {
+export default function FeedbackPage({
+  results = [],
+  feedback = {},
+  setFeedback,
+}) {
   // feedback[accountId] = { rating: string, notes: string }
-  const [feedback, setFeedback] = useState({});
+
+
 
   // ── Empty state ───────────────────────────────────────────────────────────
-  if (!results.length) {
+  if (!results || results.length === 0) {
     return (
       <div>
         <div className="page-header">
@@ -26,6 +30,39 @@ export default function FeedbackPage({ results }) {
       </div>
     );
   }
+
+
+
+  // ____ Campaign Summary Dashboard ______
+
+const summary = results.reduce(
+  (acc, result) => {
+    acc.total += 1;
+
+    if (result.status === "sent") acc.sent += 1;
+    if (result.status === "error") acc.error += 1;
+
+    const currentRating = feedback[result.id]?.rating;
+
+    if (currentRating === "✓ Approved") acc.approved += 1;
+    else if (currentRating === "~ Needs Revision") acc.needsRevision += 1;
+    else if (currentRating === "✗ Reject") acc.rejected += 1;
+    else acc.pending += 1;
+
+    return acc;
+  },
+  {
+    total: 0,
+    approved: 0,
+    needsRevision: 0,
+    rejected: 0,
+    pending: 0,
+    sent: 0,
+    error: 0,
+  }
+);
+
+
 
   // ── Rating buttons config ─────────────────────────────────────────────────
   const RATING_OPTIONS = [
@@ -44,6 +81,48 @@ export default function FeedbackPage({ results }) {
           future improvements.
         </p>
       </div>
+
+ {/* _____Summary Dashboard______ */}
+
+      <div className="summary-grid">
+  <div className="summary-card">
+    <span>Total</span>
+    <strong>{summary.total}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>Pending Review</span>
+    <strong>{summary.pending}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>Approved</span>
+    <strong>{summary.approved}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>Needs Revision</span>
+    <strong>{summary.needsRevision}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>Rejected</span>
+    <strong>{summary.rejected}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>Sent</span>
+    <strong>{summary.sent}</strong>
+  </div>
+
+  <div className="summary-card">
+    <span>Errors</span>
+    <strong>{summary.error}</strong>
+  </div>
+</div>
+
+
+
 
       {/* ── One card per result ── */}
       {results.map((result) => (

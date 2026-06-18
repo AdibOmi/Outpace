@@ -6,7 +6,11 @@
 //
 // All page-level UI lives in src/pages/. All helpers are in src/utils/.
 
-import { useState, useEffect } from "react";
+// Issues fixed:
+// - Campaign numbering now uses a monotonic counter (never reuses numbers after delete)
+// - Inline rename with pencil icon (no crash)
+
+import { useState, useEffect, useRef } from "react";
 import { loadFromStorage, saveToStorage } from "./utils/helpers";
 
 // ── Page components ──────────────────────────────────────────────────────────
@@ -19,84 +23,228 @@ import FeedbackPage from "./pages/FeedbackPage";
 import "./App.css";
 
 export default function App() {
-  // Which page is currently active (matches nav item ids below)
   const [page, setPage] = useState("setup");
 
-  // ── Persistent state (auto-saved to localStorage via useEffect) ──────────
-
-  // The user's playbook config: service description, ICP, guides, templates
+  // ── Persistent state ──────────────────────────────────────────────────────
   const [config, setConfig] = useState(() =>
     loadFromStorage("outpace_config", {})
   );
-
-  // The loaded list of accounts with their statuses
   const [accounts, setAccounts] = useState(() =>
     loadFromStorage("outpace_accounts", [])
   );
-
-  // Results produced by the latest campaign run (passed to FeedbackPage)
   const [runResults, setRunResults] = useState(() =>
     loadFromStorage("outpace_runResults", [])
   );
-
-  // Set of page ids the user has already completed (drives the green dots)
   const [completedPages, setCompletedPages] = useState(
     () => new Set(loadFromStorage("outpace_completedPages", []))
   );
 
-  // ── Persist state changes to localStorage ────────────────────────────────
+  const [feedback, setFeedback] = useState(() => {
+  const savedCampaigns = JSON.parse(localStorage.getItem("campaigns")) || [];
+  const savedActiveId = localStorage.getItem("activeCampaignId");
+
+  const activeCampaign = savedCampaigns.find(
+    (campaign) => campaign.id === savedActiveId
+  );
+
+  return activeCampaign?.feedback || {};
+});
+
+  // ── Campaigns ─────────────────────────────────────────────────────────────
+  const [campaigns, setCampaigns] = useState(() => {
+    const saved = localStorage.getItem("campaigns");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [activeCampaignId, setActiveCampaignId] = useState(() => {
+    return localStorage.getItem("activeCampaignId") || null;
+  });
+
+  // Monotonic counter — never reset, never reused even after deletes
+  const [campaignCounter, setCampaignCounter] = useState(() => {
+    return parseInt(localStorage.getItem("campaignCounter") || "0", 10);
+  });
+
+  // Rename state: which campaign is being edited, and the draft value
+  const [renamingId, setRenamingId] = useState(null);
+  const [renameValue, setRenameValue] = useState("");
+  const renameInputRef = useRef(null);
+
+  // ── Persist state ─────────────────────────────────────────────────────────
   useEffect(() => { saveToStorage("outpace_config", config); }, [config]);
   useEffect(() => { saveToStorage("outpace_accounts", accounts); }, [accounts]);
   useEffect(() => { saveToStorage("outpace_runResults", runResults); }, [runResults]);
   useEffect(() => {
     saveToStorage("outpace_completedPages", Array.from(completedPages));
   }, [completedPages]);
+  useEffect(() => {
+    localStorage.setItem("campaigns", JSON.stringify(campaigns));
+  }, [campaigns]);
+  useEffect(() => {
+    if (activeCampaignId) localStorage.setItem("activeCampaignId", activeCampaignId);
+  }, [activeCampaignId]);
+  useEffect(() => {
+    localStorage.setItem("campaignCounter", String(campaignCounter));
+  }, [campaignCounter]);
 
-  // ── Navigation helpers ────────────────────────────────────────────────────
+  // ── Auto-save active campaign ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!activeCampaignId) return;
+    setCampaigns((prev) =>
+      prev.map((c) =>
+        c.id === activeCampaignId
+          ? { ...c, feedback, config, accounts, results: runResults, updatedAt: new Date().toISOString() }
+          : c
+      )
+    );
+  }, [feedback, config, accounts, runResults, activeCampaignId]);
 
-  /** Jump directly to a page (used by sidebar clicks). */
+  // ── Navigation ────────────────────────────────────────────────────────────
   const goTo = (targetPage) => setPage(targetPage);
-
-  /**
-   * Mark `from` as completed, then navigate to `to`.
-   * Called by each page's "Continue" button.
-   */
   const next = (from, to) => {
     setCompletedPages((prev) => new Set([...prev, from]));
     setPage(to);
   };
 
-  // ── Sidebar navigation items ──────────────────────────────────────────────
   const navItems = [
-    { id: "setup",    label: "Playbook setup"   },
-    { id: "accounts", label: "Account list"     },
-    { id: "run",      label: "Run campaign"     },
+    { id: "setup",    label: "Playbook setup"    },
+    { id: "accounts", label: "Account list"      },
+    { id: "run",      label: "Run campaign"      },
     { id: "feedback", label: "Review & feedback" },
   ];
 
-  // ── Reset handler ─────────────────────────────────────────────────────────
-  // Wipes all localStorage keys and resets all state back to defaults.
+  // ── Reset ─────────────────────────────────────────────────────────────────
   const handleReset = () => {
-    ["outpace_config", "outpace_accounts", "outpace_runResults", "outpace_completedPages"]
-      .forEach((key) => localStorage.removeItem(key));
+    [
+      "outpace_config", "outpace_accounts", "outpace_runResults",
+      "outpace_completedPages", "campaigns", "activeCampaignId",
+      "campaignCounter", "config", "accounts", "runResults", "feedback",
+    ].forEach((key) => localStorage.removeItem(key));
 
     setConfig({});
     setAccounts([]);
     setRunResults([]);
     setCompletedPages(new Set());
+    setCampaigns([]);
+    setActiveCampaignId(null);
+    setCampaignCounter(0);
     setPage("setup");
   };
 
+  // ── New campaign ──────────────────────────────────────────────────────────
+ const handleNewCampaign = () => {
+  const highestCampaignNumber = campaigns.reduce((max, campaign) => {
+    return Math.max(max, campaign.campaignNumber || 0);
+  }, 0);
+
+  const nextNumber = campaigns.length === 0 ? 1 : highestCampaignNumber + 1;
+
+  setCampaignCounter(nextNumber);
+
+  const lastCampaign = campaigns[campaigns.length - 1];
+
+  const newCampaign = {
+    id: crypto.randomUUID(),
+    campaignNumber: nextNumber,
+    name: `Campaign ${nextNumber}`,
+    createdAt: new Date().toISOString(),
+    config: lastCampaign?.config || config || {},
+    accounts: [],
+    results: [],
+    feedback: {},
+  };
+
+  setCampaigns((prev) => [...prev, newCampaign]);
+  setActiveCampaignId(newCampaign.id);
+  setConfig(newCampaign.config);
+  setAccounts([]);
+  setRunResults([]);
+  localStorage.setItem("activeCampaignId", newCampaign.id);
+};
+
+
+
+
+  // ── Load campaign ─────────────────────────────────────────────────────────
+  const loadCampaign = (campaignId) => {
+    const selected = campaigns.find((c) => c.id === campaignId);
+    if (!selected) return;
+    setActiveCampaignId(selected.id);
+    setConfig(selected.config || {});
+    setAccounts(selected.accounts || []);
+    setRunResults(selected.results || []);
+    setFeedback(selectedCampaign.feedback || {});
+    localStorage.setItem("activeCampaignId", selected.id);
+  };
+
+  // ── Delete campaign ───────────────────────────────────────────────────────
+  const deleteCampaign = (campaignId) => {
+    if (!window.confirm("Delete this campaign? This cannot be undone.")) return;
+
+    const updated = campaigns.filter((c) => c.id !== campaignId);
+    setCampaigns(updated);
+
+    if (campaignId === activeCampaignId) {
+      const next = updated[0] || null;
+      if (next) {
+        loadCampaign(next.id);
+      } else {
+        setActiveCampaignId(null);
+        setConfig({});
+        setAccounts([]);
+        setRunResults([]);
+        localStorage.removeItem("activeCampaignId");
+      }
+    }
+  };
+
+  // ── Rename campaign ───────────────────────────────────────────────────────
+  const startRename = (e, campaign) => {
+    e.stopPropagation();
+    setRenamingId(campaign.id);
+    setRenameValue(campaign.name);
+    // Focus the input after render
+    setTimeout(() => renameInputRef.current?.focus(), 0);
+  };
+
+  const commitRename = (campaignId) => {
+    const trimmed = renameValue.trim();
+    if (trimmed) {
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === campaignId ? { ...c, name: trimmed } : c))
+      );
+    }
+    setRenamingId(null);
+    setRenameValue("");
+  };
+
+  const handleRenameKeyDown = (e, campaignId) => {
+    if (e.key === "Enter") commitRename(campaignId);
+    if (e.key === "Escape") {
+      setRenamingId(null);
+      setRenameValue("");
+    }
+  };
+
+  // ── Active campaign name ──────────────────────────────────────────────────
+  const activeCampaignName =
+    campaigns.find((c) => c.id === activeCampaignId)?.name || "No Campaign";
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="app">
 
       {/* ── Sidebar ── */}
       <aside className="sidebar">
 
-        {/* Logo / product name */}
         <div className="sidebar-logo">
           <h1>OUTPACE</h1>
           <p>SDR Agent - Phase 1</p>
+        </div>
+
+        <div className="sidebar-section">
+          <div className="sidebar-label">Active Campaign</div>
+          <div className="active-campaign-box">{activeCampaignName}</div>
         </div>
 
         {/* Navigation */}
@@ -107,22 +255,79 @@ export default function App() {
               key={item.id}
               className={[
                 "nav-item",
-                page === item.id          ? "active" : "",
+                page === item.id            ? "active" : "",
                 completedPages.has(item.id) ? "done"   : "",
               ].join(" ").trim()}
               onClick={() => goTo(item.id)}
             >
-              {/* Dot colour: accent (active) | green (done) | grey (default) */}
               <span className="dot" />
               {item.label}
             </div>
           ))}
         </div>
 
-        {/* Push footer to the bottom */}
+        {/* Campaign history */}
+        <div className="sidebar-section">
+          <div className="sidebar-label">Campaign History</div>
+
+          <button className="new-campaign-btn" onClick={handleNewCampaign}>
+            + New Campaign
+          </button>
+
+          <div className="campaign-history-list">
+            {campaigns.map((campaign) => (
+              <div
+                key={campaign.id}
+                className={
+                  campaign.id === activeCampaignId
+                    ? "campaign-history-row active"
+                    : "campaign-history-row"
+                }
+              >
+                {renamingId === campaign.id ? (
+                  /* ── Inline rename input ── */
+                  <input
+                    ref={renameInputRef}
+                    className="campaign-rename-input"
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={() => commitRename(campaign.id)}
+                    onKeyDown={(e) => handleRenameKeyDown(e, campaign.id)}
+                  />
+                ) : (
+                  /* ── Normal name button ── */
+                  <button
+                    className="campaign-history-name"
+                    onClick={() => loadCampaign(campaign.id)}
+                  >
+                    {campaign.name}
+                  </button>
+                )}
+
+                {/* Pencil rename button */}
+                <button
+                  className="campaign-rename-btn"
+                  onClick={(e) => startRename(e, campaign)}
+                  title="Rename campaign"
+                >
+                  ✎
+                </button>
+
+                {/* Delete button */}
+                <button
+                  className="campaign-delete-btn"
+                  onClick={() => deleteCampaign(campaign.id)}
+                  title="Delete campaign"
+                >
+                  ⨯
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="sidebar-spacer" />
 
-        {/* Phase info + reset button */}
         <div className="sidebar-footer">
           <p className="sidebar-footer-text">
             Phase 1 of 3<br />
@@ -148,7 +353,6 @@ export default function App() {
             onNext={() => next("setup", "accounts")}
           />
         )}
-
         {page === "accounts" && (
           <AccountsPage
             accounts={accounts}
@@ -156,7 +360,6 @@ export default function App() {
             onNext={() => next("accounts", "run")}
           />
         )}
-
         {page === "run" && (
           <RunPage
             config={config}
@@ -165,9 +368,12 @@ export default function App() {
             setRunResults={setRunResults}
           />
         )}
-
         {page === "feedback" && (
-          <FeedbackPage results={runResults} />
+          <FeedbackPage
+            results={runResults}
+            feedback={feedback}
+            setFeedback={setFeedback}
+          />
         )}
       </main>
     </div>
