@@ -164,6 +164,15 @@ const summary = results.reduce(
             </div>
           </div>
 
+          {result.status === "error" && (
+          <div className="feedback-error-box">
+            <strong>Generation failed</strong>
+            <div>{result.errorMessage || "Unknown error occurred."}</div>
+          </div>
+        )}
+
+        {result.status !== "error" && (
+        <>
           {/* ── Research summary panel ── */}
           <div className="feedback-research-panel">
             <div className="feedback-research-title">Research Summary</div>
@@ -201,6 +210,8 @@ const summary = results.reduce(
                 {result.research?.tone_notes}
               </div>
             </div>
+
+            
           </div>
 
           {/* ── Generated email preview ── */}
@@ -211,6 +222,9 @@ const summary = results.reduce(
               </div>
               {result.generatedEmail.body}
             </div>
+          )}
+
+           </> 
           )}
 
           {/* ── Free-text feedback ── */}
