@@ -775,3 +775,10 @@ select:focus {
   font-size: 14px;
 }
 .campaign-rename-btn:hover { opacity: 1; }
+
+.campaign-history-item small {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text2);
+}
