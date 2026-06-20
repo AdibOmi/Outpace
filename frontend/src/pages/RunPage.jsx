@@ -84,11 +84,15 @@ Return a JSON object (no markdown) with:
 
     const pending = accounts.filter((a) => a.status === "pending");
 
+    let successCounter = 0;
+    let errorCounter = 0;
+
     if (!pending.length) {
       addLog("No pending accounts.", "err");
       setRunning(false);
       return;
     }
+
 
     addLog(`Starting campaign — ${pending.length} accounts`, "info");
 
@@ -101,12 +105,19 @@ Return a JSON object (no markdown) with:
 
       const acct = pending[i];
 
+
+
       // Mark this account as currently being processed
       setAccounts((prev) =>
         prev.map((a) => (a.id === acct.id ? { ...a, status: "researching" } : a))
       );
 
       try {
+        // test error
+    if (acct.company.toLowerCase().includes("error")) {
+      throw new Error("Test error: forced failure for this account");
+    }
+            
         // ── Step 1: Research ────────────────────────────────────────────────
         addLog(`[${acct.company}] Researching account...`);
 
@@ -181,24 +192,63 @@ Return a JSON object (no markdown) with:
         }
 
         addLog(`[${acct.company}] ✓ Sent successfully`, "ok");
+        successCounter += 1;
       } catch (err) {
-        setAccounts((prev) =>
-          prev.map((a) => (a.id === acct.id ? { ...a, status: "error" } : a))
-        );
-        addLog(`[${acct.company}] ✗ Error: ${err.message}`, "err");
-      }
+        errorCounter += 1;
+  setAccounts((prev) =>
+    prev.map((a) =>
+      a.id === acct.id ? { ...a, status: "error" } : a
+    )
+  );
+
+  const errorResult = {
+    ...acct,
+    status: "error",
+    errorMessage: err.message,
+    sentAt: new Date().toISOString(),
+  };
+
+  setResults((prev) => [...prev, errorResult]);
+
+  if (setRunResults) {
+    setRunResults((prev) => [...prev, errorResult]);
+  }
+
+  addLog(
+    `[${acct.company}] ✗ Error: ${err.message}`,
+    "err"
+  );
+}
 
       // Update the progress bar after each account
       setProgress(Math.round(((i + 1) / pending.length) * 100));
     }
 
     addLog("Campaign complete ...");
-    setCampaignStats({
-      processed: pending.length,
-      generated: pending.length,
-      errors: 0,
-      successRate: 100,
-    });
+   const finalAccounts = accounts.map((account) => {
+  const processed = pending.find((p) => p.id === account.id);
+  return processed ? { ...account } : account;
+});
+
+const finalSent = sentCount;
+const finalErrors = errorCount;
+const finalProcessed = pending.length;
+const successRate =
+  finalProcessed === 0
+    ? 0
+    : Math.round((finalSent / finalProcessed) * 100);
+
+setCampaignStats({
+  processed: successCounter + errorCounter,
+  generated: successCounter,
+  errors: errorCounter,
+  successRate:
+    successCounter + errorCounter === 0
+      ? 0
+      : Math.round(
+          (successCounter / (successCounter + errorCounter)) * 100
+        ),
+});
     setRunning(false);
     setDone(true);
   };

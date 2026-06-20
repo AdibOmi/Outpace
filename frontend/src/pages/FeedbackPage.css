@@ -95,3 +95,19 @@
   font-size: 26px;
   color: var(--text);
 }
+
+
+.feedback-error-box {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--danger);
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--text);
+}
+
+.feedback-error-box strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--danger);
+}

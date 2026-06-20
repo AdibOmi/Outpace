@@ -275,7 +275,11 @@ export default function App() {
           </button>
 
           <div className="campaign-history-list">
-            {campaigns.map((campaign) => (
+            {[...campaigns]
+              .reverse()
+              .map((campaign) => (
+              //latest are now on top of list
+              
               <div
                 key={campaign.id}
                 className={
@@ -300,7 +304,16 @@ export default function App() {
                     className="campaign-history-name"
                     onClick={() => loadCampaign(campaign.id)}
                   >
-                    {campaign.name}
+                    <div>
+                      <div>{campaign.name}</div>
+                      <small>
+                        {campaign.results?.length > 0
+                          ? `${campaign.results.length} accounts`
+                          : campaign.accounts?.length > 0
+                          ? `Draft • ${campaign.accounts.length} accounts`
+                          : "0 accounts"}
+                      </small>
+                    </div>
                   </button>
                 )}
 
