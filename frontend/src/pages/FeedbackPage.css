@@ -29,36 +29,60 @@
   margin-top: 4px;
 }
 
-/* Dark panel containing the structured research brief */
+
+
 .feedback-research-panel {
   background: #111;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
   margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .feedback-research-title {
   font-weight: 700;
-  margin-bottom: 12px;
-}
-
-/* Each section (Pain Points, Opportunity, etc.) inside the research panel */
-.feedback-research-section {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text2);
   margin-bottom: 10px;
 }
 
-/* Body text inside a research section */
-.feedback-research-body {
-  color: var(--text2);
-  margin-top: 4px;
+.feedback-research-section {
+  margin-bottom: 8px;
 }
 
-/* Pain-points bullet list */
-.feedback-pain-list {
-  margin-top: 6px;
-  padding-left: 20px;
+.feedback-research-section strong,
+.feedback-research-panel > div:last-child > strong {
+  display: block;
+  font-size: 11px;
+  color: var(--text);
+  margin-bottom: 2px;
 }
+
+.feedback-research-body {
+  color: var(--text2);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.feedback-pain-list {
+  margin: 3px 0 0;
+  padding-left: 18px;
+  color: var(--text2);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.feedback-pain-list li + li {
+  margin-top: 2px;
+}
+
+
+
 
 /* Small gap between the email preview and the feedback textarea */
 .feedback-email-preview {

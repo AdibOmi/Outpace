@@ -27,7 +27,7 @@ export default function SetupPage({ config, setConfig, onNext }) {
   // Reads the chosen file as plain text and stores it in the shared `config`.
   // `key` is the config field to update ("researchGuide" or "outreachGuide").
   
-  const handleFile = (key) => (e) => {
+  const handleFile = (configKey, fileNameKey) => (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -53,8 +53,15 @@ export default function SetupPage({ config, setConfig, onNext }) {
 
     const reader = new FileReader();
     reader.onload = (ev) => {
-      setConfig((prev) => ({ ...prev, [key]: ev.target.result }));
-      setFileNames((prev) => ({ ...prev, [key]: file.name }));
+      setConfig((prev) => ({
+        ...prev,
+        [configKey]: ev.target.result,
+      }));
+
+      setFileNames((prev) => ({
+        ...prev,
+        [fileNameKey]: file.name,
+      }));
     };
     reader.readAsText(file);
   };
@@ -142,7 +149,7 @@ export default function SetupPage({ config, setConfig, onNext }) {
 
           {/* Hidden file input */}
           <input
-            id="res-input"
+            ref = {researchInputRef}
             type="file"
             accept=".txt,.md,text/plain,text/markdown"
             className="hidden-input"

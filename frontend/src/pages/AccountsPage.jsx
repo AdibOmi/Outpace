@@ -6,7 +6,7 @@
 import { useState } from "react";
 import "./AccountsPage.css";
 
-export default function AccountsPage({ accounts, setAccounts, onNext }) {
+export default function AccountsPage({ accounts, setAccounts,setRunResults, setFeedback, onNext }) {
   // Raw CSV text typed/pasted by the user
   const [csvText, setCsvText] = useState("");
 
@@ -26,29 +26,60 @@ export default function AccountsPage({ accounts, setAccounts, onNext }) {
   // ── CSV parser ────────────────────────────────────────────────────────────
   // Expects the first row to be a header (skipped) and subsequent rows to
   // have columns: Company, Contact Name, Title, Email, Industry, Notes.
+  
   const parseCSV = () => {
-    const rows = csvText.trim().split("\n").filter(Boolean);
+  const rows = csvText.trim().split("\n").filter(Boolean);
 
-    const parsed = rows
-      .slice(1) // skip header row
-      .map((row, i) => {
-        // Strip surrounding quotes and whitespace from each cell
-        const cols = row.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-        return {
-          id: Date.now() + i,
-          company: cols[0] || "",
-          contact: cols[1] || "",
-          title: cols[2] || "",
-          email: cols[3] || "",
-          industry: cols[4] || "",
-          notes: cols[5] || "",
-          status: "pending", // all new accounts start as pending
-        };
-      })
-      .filter((a) => a.company); // discard rows with no company name
+  if (rows.length <= 1) return;
 
-    if (parsed.length) setAccounts(parsed);
-  };
+  const parsed = rows
+    .slice(1)
+    .map((row) => {
+      const cols = row
+        .split(",")
+        .map((cell) => cell.trim().replace(/^"|"$/g, ""));
+
+      return {
+        id: crypto.randomUUID(),
+        company: cols[0] || "",
+        contact: cols[1] || "",
+        title: cols[2] || "",
+        email: cols[3] || "",
+        industry: cols[4] || "",
+        notes: cols[5] || "",
+        status: "pending",
+      };
+    })
+    .filter((account) => account.company && account.email);
+
+  if (!parsed.length) return;
+
+  setAccounts((previousAccounts) => {
+    const existingEmails = new Set(
+      previousAccounts.map((account) =>
+        account.email.trim().toLowerCase()
+      )
+    );
+
+    const uniqueNewAccounts = parsed.filter((account) => {
+      const normalizedEmail = account.email.trim().toLowerCase();
+
+      if (existingEmails.has(normalizedEmail)) {
+        return false;
+      }
+
+      existingEmails.add(normalizedEmail);
+      return true;
+    });
+
+    return [...previousAccounts, ...uniqueNewAccounts];
+  });
+
+  setCsvText("");
+};
+
+
+
 
   // ── Manual add ────────────────────────────────────────────────────────────
   // Appends a new account to the list and resets the form.
@@ -181,15 +212,18 @@ export default function AccountsPage({ accounts, setAccounts, onNext }) {
             </h3>
             <button
               className="btn btn-danger btn-sm"
-              // onClick={() => setAccounts([])}
-              onClick={()=>{
-                const confirmed = window.confirm(
-                  "Are you sure you want to delete all accounts?"
-                );
-                if(!confirmed) return;
-                setAccounts([]);
-                setRunResults([]);
-              }}
+                  onClick={() => {
+                  const confirmed = window.confirm(
+                    "Are you sure you want to delete all accounts?"
+                  );
+
+                  if (!confirmed) return;
+
+                  setAccounts([]);
+                  setRunResults([]);
+                  setFeedback({});
+                  setCsvText("");
+                }}
             >
               Clear all
             </button>

@@ -7,7 +7,7 @@
 // Simulates a 1.2-second delay and returns canned responses so the UI can be
 // tested without a live backend.
 
-export async function callClaude(systemPrompt, userPrompt) {
+export async function callClaude(systemPrompt) {
   // Simulate network latency
   await new Promise((resolve) => setTimeout(resolve, 1200));
 

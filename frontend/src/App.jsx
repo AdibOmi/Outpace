@@ -40,8 +40,10 @@ export default function App() {
   );
 
   const [feedback, setFeedback] = useState(() => {
-  const savedCampaigns = JSON.parse(localStorage.getItem("campaigns")) || [];
+  const savedCampaigns = loadFromStorage("campaigns", []);
   const savedActiveId = localStorage.getItem("activeCampaignId");
+  //direct JSON parse can crash the app
+  //loadFromStorage is already safely handling corrupt JSON
 
   const activeCampaign = savedCampaigns.find(
     (campaign) => campaign.id === savedActiveId
@@ -50,10 +52,11 @@ export default function App() {
   return activeCampaign?.feedback || {};
 });
 
+
+
   // ── Campaigns ─────────────────────────────────────────────────────────────
   const [campaigns, setCampaigns] = useState(() => {
-    const saved = localStorage.getItem("campaigns");
-    return saved ? JSON.parse(saved) : [];
+    return loadFromStorage("campaigns", []);
   });
 
   const [activeCampaignId, setActiveCampaignId] = useState(() => {
@@ -62,8 +65,18 @@ export default function App() {
 
   // Monotonic counter — never reset, never reused even after deletes
   const [campaignCounter, setCampaignCounter] = useState(() => {
-    return parseInt(localStorage.getItem("campaignCounter") || "0", 10);
-  });
+  const storedCounter = parseInt(
+    localStorage.getItem("campaignCounter") || "0",
+    10
+  );
+
+  const highestExistingNumber = loadFromStorage("campaigns", []).reduce(
+    (max, campaign) => Math.max(max, campaign.campaignNumber || 0),
+    0
+  );
+
+  return Math.max(storedCounter, highestExistingNumber);
+});
 
   // Rename state: which campaign is being edited, and the draft value
   const [renamingId, setRenamingId] = useState(null);
@@ -80,24 +93,44 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("campaigns", JSON.stringify(campaigns));
   }, [campaigns]);
-  useEffect(() => {
-    if (activeCampaignId) localStorage.setItem("activeCampaignId", activeCampaignId);
-  }, [activeCampaignId]);
-  useEffect(() => {
-    localStorage.setItem("campaignCounter", String(campaignCounter));
-  }, [campaignCounter]);
 
-  // ── Auto-save active campaign ─────────────────────────────────────────────
-  useEffect(() => {
-    if (!activeCampaignId) return;
+
+ useEffect(() => {
+  if (activeCampaignId) {
+    localStorage.setItem("activeCampaignId", activeCampaignId);
+  } else {
+    localStorage.removeItem("activeCampaignId");
+  }
+}, [activeCampaignId]);
+//null state of a campaign will remove it 
+
+
+
+
+useEffect(() => {
+  if (!activeCampaignId) return;
+
+  const saveTimer = window.setTimeout(() => {
     setCampaigns((prev) =>
-      prev.map((c) =>
-        c.id === activeCampaignId
-          ? { ...c, feedback, config, accounts, results: runResults, updatedAt: new Date().toISOString() }
-          : c
+      prev.map((campaign) =>
+        campaign.id === activeCampaignId
+          ? {
+              ...campaign,
+              feedback,
+              config,
+              accounts,
+              results: runResults,
+              updatedAt: new Date().toISOString(),
+            }
+          : campaign
       )
     );
-  }, [feedback, config, accounts, runResults, activeCampaignId]);
+  }, 150);
+  return () => window.clearTimeout(saveTimer);
+}, [feedback, config, accounts, runResults, activeCampaignId]);
+//small 150 ms autosave debounce i.e. saves after 150 ms of no typing
+
+
 
   // ── Navigation ────────────────────────────────────────────────────────────
   const goTo = (targetPage) => setPage(targetPage);
@@ -124,6 +157,7 @@ export default function App() {
     setConfig({});
     setAccounts([]);
     setRunResults([]);
+    setFeedback({});
     setCompletedPages(new Set());
     setCampaigns([]);
     setActiveCampaignId(null);
@@ -132,23 +166,17 @@ export default function App() {
   };
 
   // ── New campaign ──────────────────────────────────────────────────────────
- const handleNewCampaign = () => {
-  const highestCampaignNumber = campaigns.reduce((max, campaign) => {
-    return Math.max(max, campaign.campaignNumber || 0);
-  }, 0);
-
-  const nextNumber = campaigns.length === 0 ? 1 : highestCampaignNumber + 1;
+const handleNewCampaign = () => {
+  const nextNumber = campaigns.length === 0 ? 1 : campaignCounter + 1;
 
   setCampaignCounter(nextNumber);
-
-  const lastCampaign = campaigns[campaigns.length - 1];
 
   const newCampaign = {
     id: crypto.randomUUID(),
     campaignNumber: nextNumber,
     name: `Campaign ${nextNumber}`,
     createdAt: new Date().toISOString(),
-    config: lastCampaign?.config || config || {},
+    config: { ...(config || {}) },
     accounts: [],
     results: [],
     feedback: {},
@@ -156,26 +184,35 @@ export default function App() {
 
   setCampaigns((prev) => [...prev, newCampaign]);
   setActiveCampaignId(newCampaign.id);
+
+  // Keep the current playbook as the starting template.
   setConfig(newCampaign.config);
+
+  // New campaigns must not inherit operational data.
   setAccounts([]);
   setRunResults([]);
-  localStorage.setItem("activeCampaignId", newCampaign.id);
+  setFeedback({});
+  setCompletedPages(new Set());
+
+  // Begin the new campaign from Step 1.
+  setPage("setup");
 };
 
 
 
 
   // ── Load campaign ─────────────────────────────────────────────────────────
-  const loadCampaign = (campaignId) => {
-    const selected = campaigns.find((c) => c.id === campaignId);
-    if (!selected) return;
-    setActiveCampaignId(selected.id);
-    setConfig(selected.config || {});
-    setAccounts(selected.accounts || []);
-    setRunResults(selected.results || []);
-    setFeedback(selectedCampaign.feedback || {});
-    localStorage.setItem("activeCampaignId", selected.id);
-  };
+const loadCampaign = (campaignId) => {
+  const selected = campaigns.find((campaign) => campaign.id === campaignId);
+  if (!selected) return;
+
+  setActiveCampaignId(selected.id);
+  setConfig(selected.config || {});
+  setAccounts(selected.accounts || []);
+  setRunResults(selected.results || []);
+  setFeedback(selected.feedback || {});
+};
+
 
   // ── Delete campaign ───────────────────────────────────────────────────────
   const deleteCampaign = (campaignId) => {
@@ -183,7 +220,10 @@ export default function App() {
 
     const updated = campaigns.filter((c) => c.id !== campaignId);
     setCampaigns(updated);
-
+    if (updated.length === 0){
+      setCampaignCounter(0);
+    }
+    
     if (campaignId === activeCampaignId) {
       const next = updated[0] || null;
       if (next) {
@@ -193,7 +233,9 @@ export default function App() {
         setConfig({});
         setAccounts([]);
         setRunResults([]);
-        localStorage.removeItem("activeCampaignId");
+        setFeedback({});
+        setCompletedPages(new Set());
+        setPage("setup");
       }
     }
   };
@@ -307,10 +349,8 @@ export default function App() {
                     <div>
                       <div>{campaign.name}</div>
                       <small>
-                        {campaign.results?.length > 0
-                          ? `${campaign.results.length} accounts`
-                          : campaign.accounts?.length > 0
-                          ? `Draft • ${campaign.accounts.length} accounts`
+                        {campaign.accounts?.length > 0
+                          ? `${campaign.accounts.length} accounts`
                           : "0 accounts"}
                       </small>
                     </div>
@@ -370,17 +410,23 @@ export default function App() {
           <AccountsPage
             accounts={accounts}
             setAccounts={setAccounts}
+            setRunResults={setRunResults}
+            setFeedback={setFeedback}
             onNext={() => next("accounts", "run")}
           />
+
         )}
-        {page === "run" && (
+       {page === "run" && (
           <RunPage
             config={config}
             accounts={accounts}
             setAccounts={setAccounts}
+            runResults={runResults}
             setRunResults={setRunResults}
+            feedback={feedback}
           />
         )}
+
         {page === "feedback" && (
           <FeedbackPage
             results={runResults}
