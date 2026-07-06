@@ -1,313 +1,526 @@
 // ─── RunPage.jsx ──────────────────────────────────────────────────────────────
 // Step 3 of the workflow.
-// Loops through all "pending" accounts and, for each one:
-//   1. Calls Claude to produce a research brief (pain points, angle, tone).
-//   2. Calls Claude again to draft a personalised cold email.
-//   3. "Sends" the email (simulated in demo mode).
-// A live log, progress bar, and results list keep the user informed.
+// Processes only accounts whose status is "pending".
+// Previous accounts, results, and feedback remain preserved between runs.
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { now } from "../utils/helpers";
 import { callClaude } from "../utils/claudeApi";
 import "./RunPage.css";
 
-export default function RunPage({ config, accounts, setAccounts, setRunResults }) {
-  const [running, setRunning]             = useState(false);
-  const [logs, setLogs]                   = useState([]);
-  const [results, setResults]             = useState([]);
-  const [progress, setProgress]           = useState(0);
-  const [activePreview, setActivePreview] = useState(null); // which email preview is open
-  const [done, setDone]                   = useState(false);
-  const [campaignStats, setCampaignStats] = useState(null);
+// Removes Claude markdown fences and parses structured JSON.
+function parseJsonResponse(rawResponse) {
+  if (rawResponse && typeof rawResponse === "object") {
+    return rawResponse;
+  }
 
-  // Setting this ref to `true` asks the loop to stop after the current account
+  const cleanedResponse = String(rawResponse ?? "")
+    .replace(/```json|```/gi, "")
+    .trim();
+
+  return JSON.parse(cleanedResponse);
+}
+
+export default function RunPage({
+  config = {},
+  accounts = [],
+  setAccounts,
+  runResults = [],
+  setRunResults,
+  feedback = {},
+}) {
+  const [running, setRunning] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [activePreview, setActivePreview] = useState(null);
+  const [done, setDone] = useState(false);
+
+  // Setting this to true stops the loop after the current account finishes.
   const abortRef = useRef(false);
 
-  // ── Helper: append a line to the run log ─────────────────────────────────
+  // ── Helper: add a message to the campaign log ────────────────────────────
   const addLog = (msg, type = "") => {
-    setLogs((prev) => [...prev, { time: now(), msg, type }]);
+    setLogs((previousLogs) => [
+      ...previousLogs,
+      {
+        time: now(),
+        msg,
+        type,
+      },
+    ]);
   };
 
-  // ── System prompts ────────────────────────────────────────────────────────
-  // These are injected into each Claude call. They include the user's own
-  // service description, ICP, and guides from the Setup page.
+  // ── Helper: update an account's current workflow status ─────────────────
+  const updateAccountStatus = (accountId, status) => {
+    setAccounts((previousAccounts) =>
+      previousAccounts.map((account) =>
+        account.id === accountId
+          ? {
+              ...account,
+              status,
+            }
+          : account
+      )
+    );
+  };
 
-  const RESEARCH_SYSTEM = `You are a world-class B2B sales researcher. Your job is to produce a tight, actionable research brief about an account, focused on connecting their business context to the seller's services.
+  // ── Helper: insert or update one result ─────────────────────────────────
+  // This prevents duplicate results if the same account is retried later.
+  const saveResult = (newResult) => {
+    setRunResults((previousResults) => {
+      const resultAlreadyExists = previousResults.some(
+        (result) => result.id === newResult.id
+      );
 
-Service context: ${config.serviceDescription}
-ICP: ${config.icp || ""}
+      if (resultAlreadyExists) {
+        return previousResults.map((result) =>
+          result.id === newResult.id ? newResult : result
+        );
+      }
+
+      return [...previousResults, newResult];
+    });
+  };
+
+  // Remove any old duplicated results from the displayed/calculated data.
+  const uniqueResults = Array.from(
+    new Map(runResults.map((result) => [result.id, result])).values()
+  );
+
+  // ── Build feedback memory from previously reviewed emails ───────────────
+  const reviewedExamples = uniqueResults
+    .filter((result) => feedback[result.id]?.rating)
+    .slice(-10)
+    .map((result, index) => {
+      const review = feedback[result.id];
+
+      return `
+Example ${index + 1}
+
+Company:
+${result.company}
+
+Review:
+${review.rating}
+
+Reviewer notes:
+${review.notes || "No additional notes"}
+
+Research angle:
+${result.research?.angle || "Not available"}
+
+Email subject:
+${result.generatedEmail?.subject || "Not available"}
+
+Email body:
+${result.generatedEmail?.body || "Not available"}
+`.trim();
+    })
+    .join("\n\n------------------------------\n\n");
+
+  const feedbackMemory = reviewedExamples
+    ? `
+PREVIOUS REVIEWED OUTREACH EXAMPLES
+
+${reviewedExamples}
+
+Use these examples as feedback memory.
+
+Learning rules:
+- Approved emails show patterns that should generally be repeated.
+- Needs Revision feedback shows what should be improved.
+- Rejected emails show patterns that should be avoided.
+- Prioritize the reviewer's written notes.
+- Learn tone, structure, CTA style, length, and personalization preferences.
+- Never copy company-specific facts from a previous account.
+- Adapt the learned patterns to the current account.
+- Never mention these previous reviews in the generated email.
+`
+    : `
+There are no reviewed outreach examples yet.
+
+Follow the campaign playbook, templates, and outreach guidelines.
+`;
+
+  // ── Research prompt ──────────────────────────────────────────────────────
+  const RESEARCH_SYSTEM = `
+You are a world-class B2B sales researcher.
+
+Produce a concise, actionable research brief connecting the account's
+business context to the seller's service.
+
+Service context:
+${config.serviceDescription || "Not provided"}
+
+Ideal customer profile:
+${config.icp || "Not provided"}
 
 Research guidelines:
-${config.researchGuide}
+${config.researchGuide || "Not provided"}
 
-Return a JSON object (no markdown) with:
+Return only valid JSON with this structure:
+
 {
   "pain_points": ["..."],
-  "opportunity": "1–2 sentences on the specific opportunity",
-  "angle": "The single strongest hook to lead with",
-  "tone_notes": "Any tone/style notes specific to this contact"
-}`;
+  "opportunity": "1–2 sentences describing the specific opportunity",
+  "angle": "The strongest outreach hook",
+  "tone_notes": "Tone and style recommendations for this contact"
+}
+`;
 
-  const EMAIL_SYSTEM = `You are a top-performing B2B sales copywriter. You write cold emails that feel personal, are never generic, and always have a clear, low-friction CTA.
+  // ── Email prompt ─────────────────────────────────────────────────────────
+  const EMAIL_SYSTEM = `
+You are a top-performing B2B sales copywriter.
 
-Service: ${config.serviceDescription}
-Sender: ${config.senderName || "the sender"}
-${config.templates ? `\nBest-performing templates for reference (match the voice and structure):\n${config.templates}` : ""}
+Write cold emails that:
+- Feel genuinely personalized
+- Are concise
+- Avoid generic claims
+- Connect the research to the seller's service
+- End with a clear, low-friction CTA
+
+Seller's service:
+${config.serviceDescription || "Not provided"}
+
+Sender:
+${config.senderName || "the sender"}
 
 Outreach guidelines:
-${config.outreachGuide}
+${config.outreachGuide || "Not provided"}
 
-Return a JSON object (no markdown) with:
+${
+  config.templates
+    ? `
+Best-performing templates for reference:
+
+${config.templates}
+`
+    : ""
+}
+
+${feedbackMemory}
+
+Return only valid JSON with this structure:
+
 {
   "subject": "...",
-  "body": "Full email body, no subject line, signed off as ${config.senderName || "the sender"}..."
-}`;
+  "body": "Complete email body without the subject line"
+}
 
-  // ── Main campaign loop ────────────────────────────────────────────────────
+Sign the email as:
+${config.senderName || "the sender"}
+`;
+
+  // ── Main campaign execution ──────────────────────────────────────────────
   const runCampaign = async () => {
-
-    localStorage.removeItem("feedback");
-
-      // Clear previous campaign
-    setRunResults([]);
-    setResults([]);
-    localStorage.removeItem("runResults");
-    
     abortRef.current = false;
+
     setRunning(true);
     setDone(false);
     setLogs([]);
     setProgress(0);
-    
-    setCampaignStats(null);
-    localStorage.removeItem("runResults");
 
-    const pending = accounts.filter((a) => a.status === "pending");
+    // Only new/unprocessed accounts are included in this run.
+    const pendingAccounts = accounts.filter(
+      (account) => account.status === "pending"
+    );
 
-    let successCounter = 0;
-    let errorCounter = 0;
-
-    if (!pending.length) {
-      addLog("No pending accounts.", "err");
+    if (pendingAccounts.length === 0) {
+      addLog("No pending accounts to process.", "err");
       setRunning(false);
       return;
     }
 
+    addLog(
+      `Starting campaign — ${pendingAccounts.length} pending account${
+        pendingAccounts.length === 1 ? "" : "s"
+      }`,
+      "info"
+    );
 
-    addLog(`Starting campaign — ${pending.length} accounts`, "info");
-
-    for (let i = 0; i < pending.length; i++) {
-      // Check if the user hit "Stop"
+    for (let index = 0; index < pendingAccounts.length; index += 1) {
       if (abortRef.current) {
-        addLog("Campaign stopped by user.", "err");
         break;
       }
 
-      const acct = pending[i];
-
-
-
-      // Mark this account as currently being processed
-      setAccounts((prev) =>
-        prev.map((a) => (a.id === acct.id ? { ...a, status: "researching" } : a))
-      );
+      const account = pendingAccounts[index];
 
       try {
-        // test error
-    if (acct.company.toLowerCase().includes("error")) {
-      throw new Error("Test error: forced failure for this account");
-    }
-            
-        // ── Step 1: Research ────────────────────────────────────────────────
-        addLog(`[${acct.company}] Researching account...`);
+        // ── Step 1: Research ──────────────────────────────────────────────
+        updateAccountStatus(account.id, "researching");
+
+        addLog(`[${account.company}] Researching account...`);
 
         const researchRaw = await callClaude(
           RESEARCH_SYSTEM,
-          `Account: ${acct.company}\nContact: ${acct.contact} (${acct.title})\nIndustry: ${acct.industry}\nNotes: ${acct.notes}\nEmail: ${acct.email}`
+          `
+Account:
+${account.company}
+
+Contact:
+${account.contact || "Not provided"}
+
+Title:
+${account.title || "Not provided"}
+
+Industry:
+${account.industry || "Not provided"}
+
+Notes:
+${account.notes || "Not provided"}
+
+Email:
+${account.email || "Not provided"}
+`
         );
 
-        // Parse the JSON response; fall back gracefully if parsing fails
         let research;
+
         try {
-          research = JSON.parse(researchRaw.replace(/```json|```/g, "").trim());
+          research = parseJsonResponse(researchRaw);
         } catch {
           research = {
-            angle: researchRaw.slice(0, 200),
+            angle: String(researchRaw ?? "").slice(0, 200),
             pain_points: [],
             opportunity: "",
             tone_notes: "",
           };
+
+          addLog(
+            `[${account.company}] Research response was not valid JSON. A fallback was used.`,
+            "info"
+          );
         }
 
         addLog(
-          `[${acct.company}] Research complete — angle: "${research.angle?.slice(0, 60)}..."`,
+          `[${account.company}] Research complete — angle: "${
+            research.angle?.slice(0, 60) || "No angle returned"
+          }${research.angle?.length > 60 ? "..." : ""}"`,
           "ok"
         );
 
-        // ── Step 2: Draft email ─────────────────────────────────────────────
-        addLog(`[${acct.company}] Drafting personalised email...`);
-        setAccounts((prev) =>
-            prev.map((a) => (a.id === acct.id ? { ...a, status: "drafting" } : a))
-          );
+        // ── Step 2: Draft email ───────────────────────────────────────────
+        updateAccountStatus(account.id, "drafting");
+
+        addLog(`[${account.company}] Drafting personalised email...`);
 
         const emailRaw = await callClaude(
           EMAIL_SYSTEM,
-          `Contact: ${acct.contact}, ${acct.title} at ${acct.company}\nIndustry: ${acct.industry}\nResearch brief:\n${JSON.stringify(research, null, 2)}`
+          `
+Current contact:
+${account.contact || "Not provided"}
+
+Job title:
+${account.title || "Not provided"}
+
+Company:
+${account.company}
+
+Industry:
+${account.industry || "Not provided"}
+
+Email:
+${account.email || "Not provided"}
+
+Research brief:
+${JSON.stringify(research, null, 2)}
+`
         );
 
-        let email;
+        let generatedEmail;
+
         try {
-          email = JSON.parse(emailRaw.replace(/```json|```/g, "").trim());
+          generatedEmail = parseJsonResponse(emailRaw);
         } catch {
-          email = { subject: "Following up", body: emailRaw };
+          generatedEmail = {
+            subject: "Following up",
+            body: String(emailRaw ?? ""),
+          };
+
+          addLog(
+            `[${account.company}] Email response was not valid JSON. A fallback was used.`,
+            "info"
+          );
         }
 
         addLog(
-          `[${acct.company}] Email drafted — subject: "${email.subject}"`,
+          `[${account.company}] Email drafted — subject: "${
+            generatedEmail.subject || "No subject"
+          }"`,
           "ok"
         );
 
-        // ── Step 3: "Send" (simulated) ──────────────────────────────────────
-        addLog(`[${acct.company}] Sending to ${acct.email}...`);
-        await new Promise((r) => setTimeout(r, 600)); // simulate network delay
+        // ── Step 3: Simulated sending ─────────────────────────────────────
+        addLog(`[${account.company}] Sending to ${account.email}...`);
+
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, 600);
+        });
 
         const newResult = {
-          ...acct,
+          ...account,
+          status: "sent",
           research,
-          generatedEmail: email,
+          generatedEmail,
           sentAt: new Date().toISOString(),
         };
 
-        // Update the account's status to "sent"
-        setAccounts((prev) =>
-          prev.map((a) => (a.id === acct.id ? { ...a, status: "sent" } : a))
+        updateAccountStatus(account.id, "sent");
+        saveResult(newResult);
+
+        addLog(`[${account.company}] ✓ Sent successfully`, "ok");
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        updateAccountStatus(account.id, "error");
+
+        const errorResult = {
+          ...account,
+          status: "error",
+          errorMessage,
+          sentAt: new Date().toISOString(),
+        };
+
+        saveResult(errorResult);
+
+        addLog(
+          `[${account.company}] ✗ Error: ${errorMessage}`,
+          "err"
         );
+      }
 
-        // Add to local results list (for the preview panel below)
-        setResults((prev) => [...prev, newResult]);
-
-        // Also push to the parent's runResults so FeedbackPage can access it
-        if (setRunResults) {
-          setRunResults((prev) => [...prev, newResult]);
-        }
-
-        addLog(`[${acct.company}] ✓ Sent successfully`, "ok");
-        successCounter += 1;
-      } catch (err) {
-        errorCounter += 1;
-  setAccounts((prev) =>
-    prev.map((a) =>
-      a.id === acct.id ? { ...a, status: "error" } : a
-    )
-  );
-
-  const errorResult = {
-    ...acct,
-    status: "error",
-    errorMessage: err.message,
-    sentAt: new Date().toISOString(),
-  };
-
-  setResults((prev) => [...prev, errorResult]);
-
-  if (setRunResults) {
-    setRunResults((prev) => [...prev, errorResult]);
-  }
-
-  addLog(
-    `[${acct.company}] ✗ Error: ${err.message}`,
-    "err"
-  );
-}
-
-      // Update the progress bar after each account
-      setProgress(Math.round(((i + 1) / pending.length) * 100));
+      setProgress(
+        Math.round(
+          ((index + 1) / pendingAccounts.length) * 100
+        )
+      );
     }
 
-    addLog("Campaign complete ...");
-   const finalAccounts = accounts.map((account) => {
-  const processed = pending.find((p) => p.id === account.id);
-  return processed ? { ...account } : account;
-});
+    const wasStopped = abortRef.current;
 
-const finalSent = sentCount;
-const finalErrors = errorCount;
-const finalProcessed = pending.length;
-const successRate =
-  finalProcessed === 0
-    ? 0
-    : Math.round((finalSent / finalProcessed) * 100);
+    addLog(
+      wasStopped
+        ? "Campaign stopped by user."
+        : "Campaign complete.",
+      wasStopped ? "err" : "ok"
+    );
 
-setCampaignStats({
-  processed: successCounter + errorCounter,
-  generated: successCounter,
-  errors: errorCounter,
-  successRate:
-    successCounter + errorCounter === 0
-      ? 0
-      : Math.round(
-          (successCounter / (successCounter + errorCounter)) * 100
-        ),
-});
     setRunning(false);
-    setDone(true);
+    setDone(!wasStopped);
   };
 
-  // ── Stop handler ──────────────────────────────────────────────────────────
+  // ── Stop campaign after the current account finishes ────────────────────
   const stop = () => {
     abortRef.current = true;
   };
 
-  // ── Derived counts for the stat cards ─────────────────────────────────────
-  const sentCount    = accounts.filter((a) => a.status === "sent").length;
-  const errorCount   = accounts.filter((a) => a.status === "error").length;
-  const pendingCount = accounts.filter((a) => a.status === "pending").length;
-  const inProgressCount = accounts.filter((a) => a.status === "researching" || a.status === "drafting").length;
+  // ── Account-level statistics ─────────────────────────────────────────────
+  const sentCount = accounts.filter(
+    (account) => account.status === "sent"
+  ).length;
+
+  const errorCount = accounts.filter(
+    (account) => account.status === "error"
+  ).length;
+
+  const pendingCount = accounts.filter(
+    (account) => account.status === "pending"
+  ).length;
+
+  const inProgressCount = accounts.filter(
+    (account) =>
+      account.status === "researching" ||
+      account.status === "drafting"
+  ).length;
+
+  // ── Persisted result statistics ─────────────────────────────────────────
+  const generatedCount = uniqueResults.filter(
+    (result) => result.status === "sent"
+  ).length;
+
+  const resultErrorCount = uniqueResults.filter(
+    (result) => result.status === "error"
+  ).length;
+
+  const processedCount = generatedCount + resultErrorCount;
+
+  const campaignStats =
+    processedCount > 0
+      ? {
+          processed: processedCount,
+          generated: generatedCount,
+          errors: resultErrorCount,
+          successRate: Math.round(
+            (generatedCount / processedCount) * 100
+          ),
+        }
+      : null;
 
   return (
     <div>
       {/* ── Page header ── */}
       <div className="page-header">
         <h2>Run campaign</h2>
+
         <p>
-          The agent will research each account, draft a personalised email, and
-          send automatically.
+          The agent processes pending accounts while preserving all previous
+          accounts, results, and reviews.
         </p>
       </div>
 
-      {/* ── Stat cards (pending / sent / errors) ── */}
+      {/* ── Campaign statistics ── */}
       <div className="grid-4 run-stats">
         <div className="stat-card">
-          <div className="num run-stat-pending">{pendingCount}</div>
+          <div className="num run-stat-pending">
+            {pendingCount}
+          </div>
+
           <div className="lbl">pending</div>
         </div>
+
         <div className="stat-card">
-            <div className="num run-stat-progress">{inProgressCount}</div>
-            <div className="lbl">in progress</div>
+          <div className="num run-stat-progress">
+            {inProgressCount}
           </div>
+
+          <div className="lbl">in progress</div>
+        </div>
+
         <div className="stat-card">
-          <div className="num run-stat-sent">{sentCount}</div>
+          <div className="num run-stat-sent">
+            {sentCount}
+          </div>
+
           <div className="lbl">sent</div>
         </div>
+
         <div className="stat-card">
-          <div className="num run-stat-error">{errorCount}</div>
+          <div className="num run-stat-error">
+            {errorCount}
+          </div>
+
           <div className="lbl">errors</div>
         </div>
       </div>
 
-      {/* ── Campaign controls card ── */}
+      {/* ── Campaign controls ── */}
       <div className="card">
         <div className="row-between run-controls-header">
           <div>
             <h3>Campaign controls</h3>
+
             <p className="sub run-controls-sub">
-              Phase 1 — research, draft, and send
+              {accounts.length} total accounts · {pendingCount} waiting
             </p>
           </div>
 
           <div className="row">
             {running ? (
-              <button className="btn btn-danger btn-sm" onClick={stop}>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={stop}
+              >
                 Stop
               </button>
             ) : (
@@ -316,77 +529,114 @@ setCampaignStats({
                 onClick={runCampaign}
                 disabled={pendingCount === 0}
               >
-                {done ? "Re-run pending" : "▶ Start campaign"}
+                {processedCount > 0
+                  ? "▶ Run pending accounts"
+                  : "▶ Start campaign"}
               </button>
             )}
           </div>
         </div>
 
-        {/* Progress bar — only visible while running or after completion */}
+        {/* ── Progress bar ── */}
         {(running || done) && (
           <div className="progress-row">
             <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${progress}%` }} />
+              <div
+                className="progress-fill"
+                style={{ width: `${progress}%` }}
+              />
             </div>
-            <span className="run-progress-label">{progress}%</span>
+
+            <span className="run-progress-label">
+              {progress}%
+            </span>
           </div>
         )}
 
-        {/* Status indicator */}
+        {/* ── Status indicator ── */}
         <div className="status-bar">
           <div
             className={`status-dot ${
               running ? "working" : done ? "done" : "idle"
             }`}
           />
+
           <span>
             {running
               ? "Agent working..."
               : done
-              ? `Done — ${sentCount} sent`
-              : "Ready to run"}
+                ? `Done — ${sentCount} sent across ${accounts.length} accounts`
+                : pendingCount > 0
+                  ? `${pendingCount} pending accounts ready`
+                  : "No pending accounts"}
           </span>
         </div>
 
-        {/* Campaign summary — shown after a run completes */}
+        {/* ── Campaign summary ── */}
         {campaignStats && (
           <div className="run-summary">
-            <div className="run-summary-title">Campaign Summary</div>
-            <div>Accounts Processed: {campaignStats.processed}</div>
-            <div>Emails Generated:   {campaignStats.generated}</div>
-            <div>Errors:             {campaignStats.errors}</div>
-            <div>Success Rate:       {campaignStats.successRate}%</div>
+            <div className="run-summary-title">
+              Campaign Summary
+            </div>
+
+            <div>
+              Total Accounts: {accounts.length}
+            </div>
+
+            <div>
+              Accounts Processed: {campaignStats.processed}
+            </div>
+
+            <div>
+              Emails Generated: {campaignStats.generated}
+            </div>
+
+            <div>
+              Errors: {campaignStats.errors}
+            </div>
+
+            <div>
+              Success Rate: {campaignStats.successRate}%
+            </div>
           </div>
         )}
 
-        {/* Live run log */}
+        {/* ── Live campaign logs ── */}
         {logs.length > 0 && (
           <div className="run-log-container">
-            {logs.map((entry, i) => (
-              <div key={i} className="log-entry">
-                <span className="log-time">{entry.time}</span>
-                <span className={`log-msg ${entry.type}`}>{entry.msg}</span>
+            {logs.map((entry, index) => (
+              <div
+                key={`${entry.time}-${index}`}
+                className="log-entry"
+              >
+                <span className="log-time">
+                  {entry.time}
+                </span>
+
+                <span className={`log-msg ${entry.type}`}>
+                  {entry.msg}
+                </span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* ── Results list ── */}
-      {results.length > 0 && (
+      {/* ── Accumulated results ── */}
+      {uniqueResults.length > 0 && (
         <div className="card">
           <h3 className="run-results-heading">
-            Results — {results.length} email{results.length > 1 ? "s" : ""} sent
+            Results — {uniqueResults.length} of {accounts.length} accounts
+            processed
           </h3>
 
-          {results.map((result, i) => (
+          {uniqueResults.map((result, index) => (
             <div
               key={result.id}
               className="run-result-row"
               style={{
-                // Remove the bottom border from the last item
                 borderBottom:
-                  i < results.length - 1
+                  index < uniqueResults.length - 1
                     ? "1px solid var(--border)"
                     : "none",
               }}
@@ -396,40 +646,52 @@ setCampaignStats({
                   <strong className="run-result-company">
                     {result.company}
                   </strong>
+
                   <span className="run-result-contact">
                     {result.contact} · {result.email}
                   </span>
                 </div>
 
-                {/* Toggle email preview */}
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() =>
-                    setActivePreview(
-                      activePreview === result.id ? null : result.id
-                    )
-                  }
-                >
-                  {activePreview === result.id ? "Hide" : "View email"}
-                </button>
+                {result.generatedEmail && (
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() =>
+                      setActivePreview((currentPreview) =>
+                        currentPreview === result.id
+                          ? null
+                          : result.id
+                      )
+                    }
+                  >
+                    {activePreview === result.id
+                      ? "Hide"
+                      : "View email"}
+                  </button>
+                )}
               </div>
 
-              {/* Research angle summary */}
+              {result.status === "error" && (
+                <p className="run-result-angle">
+                  Error: {result.errorMessage}
+                </p>
+              )}
+
               {result.research?.angle && (
                 <p className="run-result-angle">
                   Angle: {result.research.angle}
                 </p>
               )}
 
-              {/* Expanded email preview */}
-              {activePreview === result.id && result.generatedEmail && (
-                <div className="email-preview run-email-preview">
-                  <div className="subject-line">
-                    Subject: {result.generatedEmail.subject}
+              {activePreview === result.id &&
+                result.generatedEmail && (
+                  <div className="email-preview run-email-preview">
+                    <div className="subject-line">
+                      Subject: {result.generatedEmail.subject}
+                    </div>
+
+                    {result.generatedEmail.body}
                   </div>
-                  {result.generatedEmail.body}
-                </div>
-              )}
+                )}
             </div>
           ))}
         </div>
