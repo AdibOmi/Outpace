@@ -6,20 +6,10 @@
 import { useRef, useState } from "react";
 import { now } from "../utils/helpers";
 import { callClaude } from "../utils/claudeApi";
+import { parseJsonResponse } from "../utils/parsing";
+import { buildFeedbackMemory } from "../utils/feedback";
+import { DEFAULT_CADENCE_STEPS, computeNextFollowUpDate } from "../utils/cadence";
 import "./RunPage.css";
-
-// Removes Claude markdown fences and parses structured JSON.
-function parseJsonResponse(rawResponse) {
-  if (rawResponse && typeof rawResponse === "object") {
-    return rawResponse;
-  }
-
-  const cleanedResponse = String(rawResponse ?? "")
-    .replace(/```json|```/gi, "")
-    .trim();
-
-  return JSON.parse(cleanedResponse);
-}
 
 export default function RunPage({
   config = {},
@@ -88,59 +78,11 @@ export default function RunPage({
   );
 
   // ── Build feedback memory from previously reviewed emails ───────────────
-  const reviewedExamples = uniqueResults
-    .filter((result) => feedback[result.id]?.rating)
-    .slice(-10)
-    .map((result, index) => {
-      const review = feedback[result.id];
+  const feedbackMemory = buildFeedbackMemory(uniqueResults, feedback);
 
-      return `
-Example ${index + 1}
-
-Company:
-${result.company}
-
-Review:
-${review.rating}
-
-Reviewer notes:
-${review.notes || "No additional notes"}
-
-Research angle:
-${result.research?.angle || "Not available"}
-
-Email subject:
-${result.generatedEmail?.subject || "Not available"}
-
-Email body:
-${result.generatedEmail?.body || "Not available"}
-`.trim();
-    })
-    .join("\n\n------------------------------\n\n");
-
-  const feedbackMemory = reviewedExamples
-    ? `
-PREVIOUS REVIEWED OUTREACH EXAMPLES
-
-${reviewedExamples}
-
-Use these examples as feedback memory.
-
-Learning rules:
-- Approved emails show patterns that should generally be repeated.
-- Needs Revision feedback shows what should be improved.
-- Rejected emails show patterns that should be avoided.
-- Prioritize the reviewer's written notes.
-- Learn tone, structure, CTA style, length, and personalization preferences.
-- Never copy company-specific facts from a previous account.
-- Adapt the learned patterns to the current account.
-- Never mention these previous reviews in the generated email.
-`
-    : `
-There are no reviewed outreach examples yet.
-
-Follow the campaign playbook, templates, and outreach guidelines.
-`;
+  const cadenceSteps = config.cadenceSteps?.length
+    ? config.cadenceSteps
+    : DEFAULT_CADENCE_STEPS;
 
   // ── Research prompt ──────────────────────────────────────────────────────
   const RESEARCH_SYSTEM = `
@@ -357,15 +299,33 @@ ${JSON.stringify(research, null, 2)}
           window.setTimeout(resolve, 600);
         });
 
+        const sentAt = new Date();
+
         const newResult = {
           ...account,
           status: "sent",
           research,
           generatedEmail,
-          sentAt: new Date().toISOString(),
+          sentAt: sentAt.toISOString(),
         };
 
-        updateAccountStatus(account.id, "sent");
+        setAccounts((previousAccounts) =>
+          previousAccounts.map((acc) =>
+            acc.id === account.id
+              ? {
+                  ...acc,
+                  status: "sent",
+                  cadenceStep: 0,
+                  cadenceState: "active",
+                  nextFollowUpAt: computeNextFollowUpDate(
+                    sentAt,
+                    0,
+                    cadenceSteps
+                  ).toISOString(),
+                }
+              : acc
+          )
+        );
         saveResult(newResult);
 
         addLog(`[${account.company}] ✓ Sent successfully`, "ok");

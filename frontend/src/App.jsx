@@ -18,6 +18,7 @@ import SetupPage    from "./pages/SetupPage";
 import AccountsPage from "./pages/AccountsPage";
 import RunPage      from "./pages/RunPage";
 import FeedbackPage from "./pages/FeedbackPage";
+import CadencePage  from "./pages/CadencePage";
 
 // ── Styles ───────────────────────────────────────────────────────────────────
 import "./App.css";
@@ -34,6 +35,9 @@ export default function App() {
   );
   const [runResults, setRunResults] = useState(() =>
     loadFromStorage("outpace_runResults", [])
+  );
+  const [followUps, setFollowUps] = useState(() =>
+    loadFromStorage("outpace_followUps", [])
   );
   const [completedPages, setCompletedPages] = useState(
     () => new Set(loadFromStorage("outpace_completedPages", []))
@@ -87,6 +91,7 @@ export default function App() {
   useEffect(() => { saveToStorage("outpace_config", config); }, [config]);
   useEffect(() => { saveToStorage("outpace_accounts", accounts); }, [accounts]);
   useEffect(() => { saveToStorage("outpace_runResults", runResults); }, [runResults]);
+  useEffect(() => { saveToStorage("outpace_followUps", followUps); }, [followUps]);
   useEffect(() => {
     saveToStorage("outpace_completedPages", Array.from(completedPages));
   }, [completedPages]);
@@ -120,6 +125,7 @@ useEffect(() => {
               config,
               accounts,
               results: runResults,
+              followUps,
               updatedAt: new Date().toISOString(),
             }
           : campaign
@@ -127,7 +133,7 @@ useEffect(() => {
     );
   }, 150);
   return () => window.clearTimeout(saveTimer);
-}, [feedback, config, accounts, runResults, activeCampaignId]);
+}, [feedback, config, accounts, runResults, followUps, activeCampaignId]);
 //small 150 ms autosave debounce i.e. saves after 150 ms of no typing
 
 
@@ -144,19 +150,22 @@ useEffect(() => {
     { id: "accounts", label: "Account list"      },
     { id: "run",      label: "Run campaign"      },
     { id: "feedback", label: "Review & feedback" },
+    { id: "cadence",  label: "Follow-up cadence" },
   ];
 
   // ── Reset ─────────────────────────────────────────────────────────────────
   const handleReset = () => {
     [
       "outpace_config", "outpace_accounts", "outpace_runResults",
-      "outpace_completedPages", "campaigns", "activeCampaignId",
-      "campaignCounter", "config", "accounts", "runResults", "feedback",
+      "outpace_followUps", "outpace_completedPages", "campaigns",
+      "activeCampaignId", "campaignCounter", "config", "accounts",
+      "runResults", "feedback",
     ].forEach((key) => localStorage.removeItem(key));
 
     setConfig({});
     setAccounts([]);
     setRunResults([]);
+    setFollowUps([]);
     setFeedback({});
     setCompletedPages(new Set());
     setCampaigns([]);
@@ -179,6 +188,7 @@ const handleNewCampaign = () => {
     config: { ...(config || {}) },
     accounts: [],
     results: [],
+    followUps: [],
     feedback: {},
   };
 
@@ -191,6 +201,7 @@ const handleNewCampaign = () => {
   // New campaigns must not inherit operational data.
   setAccounts([]);
   setRunResults([]);
+  setFollowUps([]);
   setFeedback({});
   setCompletedPages(new Set());
 
@@ -210,6 +221,7 @@ const loadCampaign = (campaignId) => {
   setConfig(selected.config || {});
   setAccounts(selected.accounts || []);
   setRunResults(selected.results || []);
+  setFollowUps(selected.followUps || []);
   setFeedback(selected.feedback || {});
 };
 
@@ -233,6 +245,7 @@ const loadCampaign = (campaignId) => {
         setConfig({});
         setAccounts([]);
         setRunResults([]);
+        setFollowUps([]);
         setFeedback({});
         setCompletedPages(new Set());
         setPage("setup");
@@ -281,7 +294,7 @@ const loadCampaign = (campaignId) => {
 
         <div className="sidebar-logo">
           <h1>OUTPACE</h1>
-          <p>SDR Agent - Phase 1</p>
+          <p>SDR Agent - Phase 2</p>
         </div>
 
         <div className="sidebar-section">
@@ -383,9 +396,10 @@ const loadCampaign = (campaignId) => {
 
         <div className="sidebar-footer">
           <p className="sidebar-footer-text">
-            Phase 1 of 3<br />
-            Agents follow your methodology.<br />
-            Phase 2 adds cadences + feedback loops.<br />
+            Phase 2 of 3<br />
+            Agents follow your methodology,<br />
+            learn from your feedback, and<br />
+            run follow-up cadences.<br />
             Phase 3 adds prospecting.
           </p>
           <button
@@ -411,6 +425,7 @@ const loadCampaign = (campaignId) => {
             accounts={accounts}
             setAccounts={setAccounts}
             setRunResults={setRunResults}
+            setFollowUps={setFollowUps}
             setFeedback={setFeedback}
             onNext={() => next("accounts", "run")}
           />
@@ -432,6 +447,19 @@ const loadCampaign = (campaignId) => {
             results={runResults}
             feedback={feedback}
             setFeedback={setFeedback}
+          />
+        )}
+
+        {page === "cadence" && (
+          <CadencePage
+            config={config}
+            setConfig={setConfig}
+            accounts={accounts}
+            setAccounts={setAccounts}
+            runResults={runResults}
+            followUps={followUps}
+            setFollowUps={setFollowUps}
+            feedback={feedback}
           />
         )}
       </main>
