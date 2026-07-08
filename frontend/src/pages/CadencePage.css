@@ -1,0 +1,89 @@
+/* ─── CadencePage.css ────────────────────────────────────────────────────────
+   Styles specific to the Follow-up Cadence page.
+   Global styles (cards, buttons, tags, stat cards, etc.) live in App.css.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.cadence-empty {
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+/* Cadence settings input row */
+.cadence-settings-row input {
+  max-width: 220px;
+}
+
+/* Stat number colours — match the semantic meaning of each metric */
+.cadence-stats {
+  margin-bottom: 24px;
+}
+
+.cadence-stat-active    { color: var(--accent2); }
+.cadence-stat-due       { color: var(--warn); }
+.cadence-stat-stopped   { color: var(--accent3); }
+.cadence-stat-completed { color: var(--text2); }
+
+.cadence-controls-header {
+  margin-bottom: 8px;
+}
+
+.cadence-controls-sub {
+  margin: 0;
+}
+
+.cadence-list-heading {
+  margin-bottom: 16px;
+}
+
+/* One account row within the cadence list */
+.cadence-account-row {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cadence-account-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cadence-company {
+  font-size: 13px;
+}
+
+.cadence-contact {
+  color: var(--text3);
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.cadence-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cadence-actions select {
+  width: auto;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.cadence-step-label,
+.cadence-due-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.cadence-history {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.cadence-touch-preview {
+  margin-top: 0;
+}

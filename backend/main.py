@@ -1,9 +1,9 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from anthropic import Anthropic
+from anthropic import Anthropic, APIStatusError, APIConnectionError
 
 load_dotenv()
 
@@ -29,14 +29,19 @@ def home():
 
 @app.post("/api/claude")
 def call_claude(req: ClaudeRequest):
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1000,
-        system=req.systemPrompt,
-        messages=[
-            {"role": "user", "content": req.userPrompt}
-        ],
-    )
+    try:
+        message = client.messages.create(
+            model="claude-sonnet-5",
+            max_tokens=1000,
+            system=req.systemPrompt,
+            messages=[
+                {"role": "user", "content": req.userPrompt}
+            ],
+        )
+    except APIStatusError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e.message)) from e
+    except APIConnectionError as e:
+        raise HTTPException(status_code=502, detail=str(e)) from e
 
     text = "".join(
         block.text for block in message.content

@@ -6,7 +6,7 @@
 import { useState } from "react";
 import "./AccountsPage.css";
 
-export default function AccountsPage({ accounts, setAccounts,setRunResults, setFeedback, onNext }) {
+export default function AccountsPage({ accounts, setAccounts, setRunResults, setFollowUps, setFeedback, onNext }) {
   // Raw CSV text typed/pasted by the user
   const [csvText, setCsvText] = useState("");
 
@@ -221,6 +221,7 @@ export default function AccountsPage({ accounts, setAccounts,setRunResults, setF
 
                   setAccounts([]);
                   setRunResults([]);
+                  setFollowUps([]);
                   setFeedback({});
                   setCsvText("");
                 }}
