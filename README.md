@@ -107,7 +107,7 @@ Actively building **Phase 2**.
 
 ```bash
 # Clone the repo
-git clone <repo-url>
+git clone https://github.com/AdibOmi/Outpace.git
 cd Outpace
 
 # --- Backend ---
