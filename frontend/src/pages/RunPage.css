@@ -16,9 +16,9 @@
 }
 
 /* Stat number colours — match the semantic meaning of each metric */
-.run-stat-pending  { color: var(--text2); }
-.run-stat-progress { color: var(--warn); }
-.run-stat-sent     { color: var(--accent3); }
+.run-stat-pending  { color: var(--text-secondary); }
+.run-stat-progress { color: var(--accent-text); }
+.run-stat-sent     { color: var(--success); }
 .run-stat-error    { color: var(--danger); }
 
 /* Keeps the campaign-controls sub-label flush */
@@ -35,17 +35,17 @@
 .run-progress-label {
   font-family: var(--mono);
   font-size: 12px;
-  color: var(--text2);
+  color: var(--text-secondary);
   min-width: 36px;
 }
 
 /* Dark panel that appears after a run — summarises the outcome */
 .run-summary {
   margin-top: 12px;
-  background: #111;
-  border-radius: 12px;
+  background: var(--code-bg);
+  border-radius: var(--radius-md);
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
   font-size: 13px;
   line-height: 2;
 }
@@ -60,8 +60,8 @@
   margin-top: 14px;
   max-height: 220px;
   overflow-y: auto;
-  background: var(--bg);
-  border-radius: var(--r);
+  background: var(--code-bg);
+  border-radius: var(--radius-md);
   padding: 10px 14px;
 }
 
@@ -83,7 +83,7 @@
 
 /* Contact + email beside the company name */
 .run-result-contact {
-  color: var(--text3);
+  color: var(--text-muted);
   font-size: 12px;
   margin-left: 10px;
 }
@@ -91,7 +91,7 @@
 /* Research angle shown below the company/contact row */
 .run-result-angle {
   font-size: 11px;
-  color: var(--text3);
+  color: var(--text-muted);
   font-family: var(--mono);
   margin-top: 6px;
 }

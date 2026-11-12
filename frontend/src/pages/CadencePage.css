@@ -4,7 +4,7 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 .cadence-empty {
-  color: var(--text2);
+  color: var(--text-secondary);
   font-family: var(--mono);
   font-size: 13px;
 }
@@ -19,10 +19,10 @@
   margin-bottom: 24px;
 }
 
-.cadence-stat-active    { color: var(--accent2); }
-.cadence-stat-due       { color: var(--warn); }
-.cadence-stat-stopped   { color: var(--accent3); }
-.cadence-stat-completed { color: var(--text2); }
+.cadence-stat-active    { color: var(--data-cyan); }
+.cadence-stat-due       { color: var(--warning); }
+.cadence-stat-stopped   { color: var(--success); }
+.cadence-stat-completed { color: var(--text-secondary); }
 
 .cadence-controls-header {
   margin-bottom: 8px;
@@ -40,7 +40,7 @@
 .cadence-account-row {
   padding-bottom: 16px;
   margin-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .cadence-account-row:last-child {
@@ -54,7 +54,7 @@
 }
 
 .cadence-contact {
-  color: var(--text3);
+  color: var(--text-muted);
   font-size: 12px;
   margin-left: 10px;
 }
@@ -74,7 +74,7 @@
 .cadence-due-label {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--text2);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 

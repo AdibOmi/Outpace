@@ -120,8 +120,11 @@ venv\Scripts\Activate.ps1      # Windows PowerShell
 
 pip install -r requirements.txt
 
-# create backend/.env with your Anthropic API key
-echo "ANTHROPIC_API_KEY=your-key-here" > .env
+# create backend/.env from the example, then fill in your keys
+cp .env.example .env
+#   LLM_PROVIDER    — "gemini" (free key: https://aistudio.google.com/apikey) or "claude" (paid)
+#   GEMINI_API_KEY or ANTHROPIC_API_KEY — without either, demo data is used
+#   SMTP_USER / SMTP_APP_PASSWORD — Gmail address + App Password, required for test/live sending
 
 # run the API
 uvicorn main:app --reload
@@ -136,12 +139,18 @@ Data (accounts, drafts, feedback) is currently persisted in the browser's `local
 
 ## Usage
 
-1. Upload a target account list (CSV) through the dashboard.
-2. Provide (or confirm) the research guideline, email template, and outreach cadence for this rep.
-3. Trigger the pipeline — agents research each account, draft emails, and send them according to the cadence.
-4. Review drafts and outcomes in the dashboard; feedback given here feeds back into future drafts (Phase 2 behavior).
+With both servers running, open http://localhost:5173. The sidebar's **System** panel shows which AI provider and email account are configured.
 
-Replace this with the real flow once the UI/API surface is finalized — this describes the intended workflow based on the phase spec, not a verified walkthrough.
+1. **Playbook setup** — enter your service, ICP, signature, research guide, outreach guide and (optionally) templates. Pick an **email delivery** mode:
+   - *Simulate* (default) — nothing is sent.
+   - *Test* — every email goes to the test inbox you enter, with the subject prefixed `[TEST → prospect@address]`.
+   - *Live* — emails go to each account's real address.
+2. **Account list** — paste CSV or add accounts manually.
+3. **Run campaign** — for each pending account the agent researches it with web search (Google Search for Gemini, Claude's web search tool for Claude), drafts an email, and sends it via the selected delivery mode. Failed accounts can be requeued with **Retry failed**.
+4. **Review & feedback** — rate drafts and leave notes; the last 10 reviews are fed into future drafting prompts.
+5. **Follow-up cadence** — set the day offsets (e.g. `3, 7, 14`), then run due follow-ups. Follow-ups are threaded under the initial email. Use **Simulate days passing** to test without waiting.
+
+If the backend is offline, or has no AI key, research and drafts fall back to locally generated demo data. Real API errors (e.g. an invalid key) are shown in the run log.
 
 ## Roadmap / What's Next
 

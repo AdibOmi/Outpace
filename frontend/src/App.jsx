@@ -6,12 +6,15 @@
 //
 // All page-level UI lives in src/pages/. All helpers are in src/utils/.
 
-// Issues fixed:
+// Earlier fixes:
 // - Campaign numbering now uses a monotonic counter (never reuses numbers after delete)
 // - Inline rename with pencil icon (no crash)
 
 import { useState, useEffect, useRef } from "react";
 import { loadFromStorage, saveToStorage } from "./utils/helpers";
+import { getBackendStatus } from "./utils/llmApi";
+import { DEFAULT_CADENCE_STEPS, isFollowUpDue } from "./utils/cadence";
+import { NavIcon, ChevronRight, CometLogo } from "./components/Icons";
 
 // ── Page components ──────────────────────────────────────────────────────────
 import SetupPage    from "./pages/SetupPage";
@@ -82,6 +85,23 @@ export default function App() {
   return Math.max(storedCounter, highestExistingNumber);
 });
 
+  // ── Backend status (AI key / SMTP configured) ─────────────────────────────
+  const [backendStatus, setBackendStatus] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const check = () =>
+      getBackendStatus().then((status) => {
+        if (!cancelled) setBackendStatus(status);
+      });
+    check();
+    const interval = window.setInterval(check, 15000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, []);
+
   // Rename state: which campaign is being edited, and the draft value
   const [renamingId, setRenamingId] = useState(null);
   const [renameValue, setRenameValue] = useState("");
@@ -145,13 +165,71 @@ useEffect(() => {
     setPage(to);
   };
 
+  // What the agent is doing right now (set by the Run and Cadence pages).
+  const [agentActivity, setAgentActivity] = useState(null);
+
+  // ── Live progress shown under each workflow step ──────────────────────────
+  const cadenceSteps = config.cadenceSteps?.length ? config.cadenceSteps : DEFAULT_CADENCE_STEPS;
+  const briefFilled = ["serviceDescription", "icp", "researchGuide", "outreachGuide"].filter(
+    (key) => config[key]?.trim()
+  ).length;
+  const pendingCount = accounts.filter((a) => a.status === "pending").length;
+  const sentCount = accounts.filter((a) => a.status === "sent").length;
+  const toReviewCount = runResults.filter((r) => !feedback[r.id]?.rating).length;
+  const dueCount = accounts.filter((a) => isFollowUpDue(a, cadenceSteps)).length;
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
   const navItems = [
-    { id: "setup",    label: "Playbook setup"    },
-    { id: "accounts", label: "Account list"      },
-    { id: "run",      label: "Run campaign"      },
-    { id: "feedback", label: "Review & feedback" },
-    { id: "cadence",  label: "Follow-up cadence" },
+    {
+      id: "setup",
+      label: "Brief the agent",
+      meta: briefFilled === 4 ? "Brief complete" : `${briefFilled} of 4 required filled`,
+    },
+    {
+      id: "accounts",
+      label: "Add accounts",
+      meta: accounts.length ? plural(accounts.length, "account") : "No accounts yet",
+    },
+    {
+      id: "run",
+      label: "Run outreach",
+      meta: accounts.length ? `${sentCount} sent · ${pendingCount} waiting` : "Add accounts first",
+    },
+    {
+      id: "feedback",
+      label: "Review drafts",
+      meta: runResults.length ? `${toReviewCount} to review` : "Nothing to review yet",
+    },
+    {
+      id: "cadence",
+      label: "Follow-ups",
+      meta: sentCount ? `${dueCount} due now` : "Starts after first send",
+    },
   ];
+
+  const pageIndex = navItems.findIndex((item) => item.id === page);
+
+  // Idle message: the single most useful next step.
+  const idleHint =
+    briefFilled < 4
+      ? "Waiting for your brief"
+      : accounts.length === 0
+        ? "Brief received — add accounts to contact"
+        : pendingCount > 0
+          ? `Ready to contact ${plural(pendingCount, "account")}`
+          : dueCount > 0
+            ? `${plural(dueCount, "follow-up")} due`
+            : "All caught up";
+
+  const deliveryMode = config.deliveryMode || "simulate";
+  const aiStatus = backendStatus?.ai;
+  const aiChip = !backendStatus
+    ? "Connecting…"
+    : !backendStatus.online
+      ? "Backend offline"
+      : aiStatus?.configured
+        ? aiStatus.model
+        : "Demo AI";
 
   // ── Reset ─────────────────────────────────────────────────────────────────
   const handleReset = () => {
@@ -281,9 +359,10 @@ const loadCampaign = (campaignId) => {
     }
   };
 
+
   // ── Active campaign name ──────────────────────────────────────────────────
   const activeCampaignName =
-    campaigns.find((c) => c.id === activeCampaignId)?.name || "No Campaign";
+    campaigns.find((c) => c.id === activeCampaignId)?.name || "No campaign";
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -292,176 +371,256 @@ const loadCampaign = (campaignId) => {
       {/* ── Sidebar ── */}
       <aside className="sidebar">
 
-        <div className="sidebar-logo">
-          <h1>OUTPACE</h1>
-          <p>SDR Agent - Phase 2</p>
+        <div className="brand">
+          <span className="brand-mark" aria-hidden="true">
+            <CometLogo />
+          </span>
+          <span className="brand-name">Outpace</span>
+          <span className="brand-tag">AI SDR</span>
         </div>
 
-        <div className="sidebar-section">
-          <div className="sidebar-label">Active Campaign</div>
-          <div className="active-campaign-box">{activeCampaignName}</div>
-        </div>
-
-        {/* Navigation */}
-        <div className="nav-section">
-          <p className="nav-label">Workflow</p>
-          {navItems.map((item) => (
-            <div
-              key={item.id}
-              className={[
-                "nav-item",
-                page === item.id            ? "active" : "",
-                completedPages.has(item.id) ? "done"   : "",
-              ].join(" ").trim()}
-              onClick={() => goTo(item.id)}
-            >
-              <span className="dot" />
-              {item.label}
-            </div>
-          ))}
-        </div>
-
-        {/* Campaign history */}
-        <div className="sidebar-section">
-          <div className="sidebar-label">Campaign History</div>
-
-          <button className="new-campaign-btn" onClick={handleNewCampaign}>
-            + New Campaign
-          </button>
-
-          <div className="campaign-history-list">
-            {[...campaigns]
-              .reverse()
-              .map((campaign) => (
-              //latest are now on top of list
-              
-              <div
-                key={campaign.id}
-                className={
-                  campaign.id === activeCampaignId
-                    ? "campaign-history-row active"
-                    : "campaign-history-row"
-                }
-              >
-                {renamingId === campaign.id ? (
-                  /* ── Inline rename input ── */
-                  <input
-                    ref={renameInputRef}
-                    className="campaign-rename-input"
-                    value={renameValue}
-                    onChange={(e) => setRenameValue(e.target.value)}
-                    onBlur={() => commitRename(campaign.id)}
-                    onKeyDown={(e) => handleRenameKeyDown(e, campaign.id)}
-                  />
-                ) : (
-                  /* ── Normal name button ── */
-                  <button
-                    className="campaign-history-name"
-                    onClick={() => loadCampaign(campaign.id)}
-                  >
-                    <div>
-                      <div>{campaign.name}</div>
-                      <small>
-                        {campaign.accounts?.length > 0
-                          ? `${campaign.accounts.length} accounts`
-                          : "0 accounts"}
-                      </small>
-                    </div>
-                  </button>
-                )}
-
-                {/* Pencil rename button */}
+        {/* Workflow — numbered because the steps happen in this order */}
+        <nav aria-label="Workflow">
+          <div className="sidebar-label">Workflow</div>
+          <div className="steps">
+            {navItems.map((item, index) => {
+              const isDone = completedPages.has(item.id) && page !== item.id;
+              return (
                 <button
-                  className="campaign-rename-btn"
-                  onClick={(e) => startRename(e, campaign)}
-                  title="Rename campaign"
+                  key={item.id}
+                  className={[
+                    "step-link",
+                    page === item.id ? "active" : "",
+                    isDone ? "done" : "",
+                  ].join(" ").trim()}
+                  aria-current={page === item.id ? "page" : undefined}
+                  onClick={() => goTo(item.id)}
                 >
-                  ✎
+                  <span className="step-icon">
+                    <NavIcon id={item.id} />
+                  </span>
+                  <span className="step-text">
+                    <span className="step-title">
+                      <span className="visually-hidden">Step {index + 1}: </span>
+                      {item.label}
+                    </span>
+                    <span className="step-meta">{item.meta}</span>
+                  </span>
+                  {isDone && <span className="step-done">Done</span>}
                 </button>
-
-                {/* Delete button */}
-                <button
-                  className="campaign-delete-btn"
-                  onClick={() => deleteCampaign(campaign.id)}
-                  title="Delete campaign"
-                >
-                  ⨯
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
+        </nav>
+
+        {/* Campaigns */}
+        <div>
+          <div className="sidebar-label">
+            Campaigns
+            <button className="campaign-new-btn" onClick={handleNewCampaign}>
+              + New
+            </button>
+          </div>
+
+          {campaigns.length === 0 ? (
+            <p className="campaign-empty">
+              Your work is saved as you go. Start a new campaign to keep it separate.
+            </p>
+          ) : (
+            <div className="campaign-history-list">
+              {[...campaigns].reverse().map((campaign) => (
+                <div
+                  key={campaign.id}
+                  className={
+                    campaign.id === activeCampaignId
+                      ? "campaign-history-row active"
+                      : "campaign-history-row"
+                  }
+                >
+                  {renamingId === campaign.id ? (
+                    <input
+                      ref={renameInputRef}
+                      type="text"
+                      className="campaign-rename-input"
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onBlur={() => commitRename(campaign.id)}
+                      onKeyDown={(e) => handleRenameKeyDown(e, campaign.id)}
+                    />
+                  ) : (
+                    <button
+                      className="campaign-history-name"
+                      onClick={() => loadCampaign(campaign.id)}
+                    >
+                      {campaign.name}
+                      <small>
+                        {campaign.accounts?.length || 0} account
+                        {campaign.accounts?.length === 1 ? "" : "s"}
+                      </small>
+                    </button>
+                  )}
+
+                  <button
+                    className="campaign-rename-btn"
+                    onClick={(e) => startRename(e, campaign)}
+                    title="Rename campaign"
+                    aria-label={`Rename ${campaign.name}`}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    className="campaign-delete-btn"
+                    onClick={() => deleteCampaign(campaign.id)}
+                    title="Delete campaign"
+                    aria-label={`Delete ${campaign.name}`}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="sidebar-spacer" />
 
-        <div className="sidebar-footer">
-          <p className="sidebar-footer-text">
-            Phase 2 of 3<br />
-            Agents follow your methodology,<br />
-            learn from your feedback, and<br />
-            run follow-up cadences.<br />
-            Phase 3 adds prospecting.
-          </p>
-          <button
-            className="btn btn-danger btn-sm sidebar-reset-btn"
-            onClick={handleReset}
-          >
-            Reset Demo Data
-          </button>
+        {/* Connections */}
+        <div>
+          <div className="sidebar-label">Connections</div>
+          <div className="system-status">
+            <div className={`system-status-row ${aiStatus?.configured ? "ok" : "warn"}`}>
+              <span className="dot" />
+              {!backendStatus
+                ? "Checking backend…"
+                : !backendStatus.online
+                  ? "Backend offline — using demo AI"
+                  : aiStatus?.configured
+                    ? `${aiStatus.provider === "gemini" ? "Gemini" : "Claude"} connected`
+                    : "No AI key — using demo AI"}
+            </div>
+            <div className={`system-status-row ${backendStatus?.email ? "ok" : "warn"}`}>
+              <span className="dot" />
+              {backendStatus?.email
+                ? `Sending as ${backendStatus.emailFrom}`
+                : "Email sending not set up"}
+            </div>
+          </div>
         </div>
+
+        <button className="sidebar-reset-btn" onClick={handleReset}>
+          Reset all data
+        </button>
       </aside>
 
       {/* ── Main content ── */}
       <main className="main">
-        {page === "setup" && (
-          <SetupPage
-            config={config}
-            setConfig={setConfig}
-            onNext={() => next("setup", "accounts")}
-          />
-        )}
-        {page === "accounts" && (
-          <AccountsPage
-            accounts={accounts}
-            setAccounts={setAccounts}
-            setRunResults={setRunResults}
-            setFollowUps={setFollowUps}
-            setFeedback={setFeedback}
-            onNext={() => next("accounts", "run")}
-          />
 
-        )}
-       {page === "run" && (
-          <RunPage
-            config={config}
-            accounts={accounts}
-            setAccounts={setAccounts}
-            runResults={runResults}
-            setRunResults={setRunResults}
-            feedback={feedback}
-          />
-        )}
+        {/* Agent strip — what the agent is doing, on every page */}
+        <div
+          className={`agent-strip ${agentActivity ? "working" : "idle"}`}
+          role="status"
+          aria-live="polite"
+        >
+          {agentActivity ? (
+            <span className="agent-dots" aria-hidden="true">
+              <i /><i /><i />
+            </span>
+          ) : (
+            <span className="agent-light" aria-hidden="true" />
+          )}
+          <span className="agent-state">{agentActivity ? "Working" : "Idle"}</span>
+          <span className="agent-text">{agentActivity || idleHint}</span>
+          <span className="agent-chips">
+            <span className="agent-chip">{activeCampaignName}</span>
+            <span className="agent-chip">{aiChip}</span>
+            <span className={`agent-chip ${deliveryMode === "live" ? "live" : ""}`}>
+              {deliveryMode === "simulate"
+                ? "Simulated sends"
+                : deliveryMode === "test"
+                  ? "Test inbox"
+                  : "Live sends"}
+            </span>
+          </span>
+        </div>
 
-        {page === "feedback" && (
-          <FeedbackPage
-            results={runResults}
-            feedback={feedback}
-            setFeedback={setFeedback}
-          />
-        )}
+        <div className="page">
+          <nav className="breadcrumb" aria-label="Breadcrumb">
+            <span>{activeCampaignName}</span>
+            <ChevronRight />
+            <span aria-current="page">{navItems[pageIndex]?.label}</span>
+            <span className="breadcrumb-step">
+              Step {pageIndex + 1} of {navItems.length}
+            </span>
+          </nav>
 
-        {page === "cadence" && (
-          <CadencePage
-            config={config}
-            setConfig={setConfig}
-            accounts={accounts}
-            setAccounts={setAccounts}
-            runResults={runResults}
-            followUps={followUps}
-            setFollowUps={setFollowUps}
-            feedback={feedback}
-          />
-        )}
+          {page === "setup" && (
+            <SetupPage
+              config={config}
+              setConfig={setConfig}
+              onNext={() => next("setup", "accounts")}
+            />
+          )}
+
+          {page === "accounts" && (
+            <AccountsPage
+              accounts={accounts}
+              setAccounts={setAccounts}
+              setRunResults={setRunResults}
+              setFollowUps={setFollowUps}
+              setFeedback={setFeedback}
+              onNext={() => next("accounts", "run")}
+            />
+          )}
+
+          {page === "run" && (
+            <RunPage
+              config={config}
+              accounts={accounts}
+              setAccounts={setAccounts}
+              runResults={runResults}
+              setRunResults={setRunResults}
+              feedback={feedback}
+              onAgentActivity={setAgentActivity}
+              onAddAccounts={() => goTo("accounts")}
+            />
+          )}
+
+          {page === "feedback" && (
+            <FeedbackPage
+              results={runResults}
+              feedback={feedback}
+              setFeedback={setFeedback}
+            />
+          )}
+
+          {page === "cadence" && (
+            <CadencePage
+              config={config}
+              setConfig={setConfig}
+              accounts={accounts}
+              setAccounts={setAccounts}
+              runResults={runResults}
+              followUps={followUps}
+              setFollowUps={setFollowUps}
+              feedback={feedback}
+              onAgentActivity={setAgentActivity}
+            />
+          )}
+
+          {/* Setup and Accounts have their own gated Continue buttons */}
+          {(page === "run" || page === "feedback") && (
+            <div className="page-next">
+              <button
+                className="btn btn-secondary"
+                onClick={() =>
+                  page === "run" ? next("run", "feedback") : next("feedback", "cadence")
+                }
+              >
+                {page === "run" ? "Next: review drafts →" : "Next: follow-ups →"}
+              </button>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

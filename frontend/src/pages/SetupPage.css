@@ -12,7 +12,7 @@
 .upload-hint {
   font-size: 11px;
   margin-top: 4px;
-  color: var(--text3);
+  color: var(--text-muted);
 }
 
 /* The hidden <input type="file"> element — triggered programmatically */

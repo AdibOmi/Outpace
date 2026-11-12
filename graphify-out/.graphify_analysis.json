@@ -1,0 +1,433 @@
+{
+  "communities": {
+    "0": [
+      "claude_skills_brainstorming_scripts_server",
+      "claude_skills_brainstorming_scripts_server_bootstrappage",
+      "claude_skills_brainstorming_scripts_server_brandmarkup",
+      "claude_skills_brainstorming_scripts_server_broadcast",
+      "claude_skills_brainstorming_scripts_server_browserlauncherforplatform",
+      "claude_skills_brainstorming_scripts_server_chmodowneronly",
+      "claude_skills_brainstorming_scripts_server_clients",
+      "claude_skills_brainstorming_scripts_server_companionurl",
+      "claude_skills_brainstorming_scripts_server_computeacceptkey",
+      "claude_skills_brainstorming_scripts_server_content_dir",
+      "claude_skills_brainstorming_scripts_server_crypto",
+      "claude_skills_brainstorming_scripts_server_debouncetimers",
+      "claude_skills_brainstorming_scripts_server_decodeframe",
+      "claude_skills_brainstorming_scripts_server_encodeframe",
+      "claude_skills_brainstorming_scripts_server_escapehtmltext",
+      "claude_skills_brainstorming_scripts_server_frametemplate",
+      "claude_skills_brainstorming_scripts_server_fs",
+      "claude_skills_brainstorming_scripts_server_generatetoken",
+      "claude_skills_brainstorming_scripts_server_getnewestscreen",
+      "claude_skills_brainstorming_scripts_server_handlemessage",
+      "claude_skills_brainstorming_scripts_server_handlerequest",
+      "claude_skills_brainstorming_scripts_server_handleupgrade",
+      "claude_skills_brainstorming_scripts_server_helperscript",
+      "claude_skills_brainstorming_scripts_server_http",
+      "claude_skills_brainstorming_scripts_server_idle_timeout_ms",
+      "claude_skills_brainstorming_scripts_server_initialtoken",
+      "claude_skills_brainstorming_scripts_server_isallowedwebsocketorigin",
+      "claude_skills_brainstorming_scripts_server_isauthorized",
+      "claude_skills_brainstorming_scripts_server_isfulldocument",
+      "claude_skills_brainstorming_scripts_server_isregularfileinsidecontentdir",
+      "claude_skills_brainstorming_scripts_server_istruthyenv",
+      "claude_skills_brainstorming_scripts_server_lastactivity",
+      "claude_skills_brainstorming_scripts_server_lifecycle_check_ms",
+      "claude_skills_brainstorming_scripts_server_maybeopenbrowser",
+      "claude_skills_brainstorming_scripts_server_mime_types",
+      "claude_skills_brainstorming_scripts_server_opcodes",
+      "claude_skills_brainstorming_scripts_server_parsecookies",
+      "claude_skills_brainstorming_scripts_server_path",
+      "claude_skills_brainstorming_scripts_server_pathnameof",
+      "claude_skills_brainstorming_scripts_server_port",
+      "claude_skills_brainstorming_scripts_server_preferredport",
+      "claude_skills_brainstorming_scripts_server_querykey",
+      "claude_skills_brainstorming_scripts_server_randomport",
+      "claude_skills_brainstorming_scripts_server_readsuperpowersversion",
+      "claude_skills_brainstorming_scripts_server_renderbranding",
+      "claude_skills_brainstorming_scripts_server_securityheaders",
+      "claude_skills_brainstorming_scripts_server_startserver",
+      "claude_skills_brainstorming_scripts_server_state_dir",
+      "claude_skills_brainstorming_scripts_server_superpowers_telemetry_disabled",
+      "claude_skills_brainstorming_scripts_server_superpowers_version",
+      "claude_skills_brainstorming_scripts_server_telemetry_disable_env_vars",
+      "claude_skills_brainstorming_scripts_server_timingsafeequalstr",
+      "claude_skills_brainstorming_scripts_server_tokeninfo",
+      "claude_skills_brainstorming_scripts_server_touchactivity",
+      "claude_skills_brainstorming_scripts_server_urlhostforhttp",
+      "claude_skills_brainstorming_scripts_server_waitingpage",
+      "claude_skills_brainstorming_scripts_server_wrapinframe",
+      "docref_rfc_6455"
+    ],
+    "1": [
+      "frontend_src_app",
+      "frontend_src_app_app",
+      "frontend_src_main",
+      "frontend_src_pages_accountspage",
+      "frontend_src_pages_accountspage_accountspage",
+      "frontend_src_pages_cadencepage",
+      "frontend_src_pages_cadencepage_cadencepage",
+      "frontend_src_pages_cadencepage_state_labels",
+      "frontend_src_pages_cadencepage_state_options",
+      "frontend_src_pages_cadencepage_state_tag_class",
+      "frontend_src_pages_feedbackpage",
+      "frontend_src_pages_feedbackpage_feedbackpage",
+      "frontend_src_pages_runpage",
+      "frontend_src_pages_runpage_runpage",
+      "frontend_src_pages_setuppage",
+      "frontend_src_pages_setuppage_setuppage",
+      "frontend_src_utils_cadence",
+      "frontend_src_utils_cadence_computenextfollowupdate",
+      "frontend_src_utils_cadence_default_cadence_steps",
+      "frontend_src_utils_cadence_isfollowupdue",
+      "frontend_src_utils_cadence_parsecadencesteps",
+      "frontend_src_utils_claudeapi",
+      "frontend_src_utils_claudeapi_callclaude",
+      "frontend_src_utils_demodata",
+      "frontend_src_utils_demodata_extractfield",
+      "frontend_src_utils_demodata_fallback",
+      "frontend_src_utils_demodata_generatedemoemail",
+      "frontend_src_utils_demodata_generatedemoresearch",
+      "frontend_src_utils_feedback",
+      "frontend_src_utils_feedback_buildfeedbackmemory",
+      "frontend_src_utils_helpers",
+      "frontend_src_utils_helpers_loadfromstorage",
+      "frontend_src_utils_helpers_now",
+      "frontend_src_utils_helpers_savetostorage",
+      "frontend_src_utils_parsing",
+      "frontend_src_utils_parsing_parsejsonresponse"
+    ],
+    "2": [
+      "frontend_package_devdependencies",
+      "frontend_package_devdependencies_eslint",
+      "frontend_package_devdependencies_eslint_js",
+      "frontend_package_devdependencies_eslint_plugin_react_hooks",
+      "frontend_package_devdependencies_eslint_plugin_react_refresh",
+      "frontend_package_devdependencies_globals",
+      "frontend_package_devdependencies_types_react",
+      "frontend_package_devdependencies_types_react_dom",
+      "frontend_package_devdependencies_vite",
+      "frontend_package_devdependencies_vitejs_plugin_react",
+      "frontend_package_json_eslint",
+      "frontend_package_json_eslint_js",
+      "frontend_package_json_eslint_plugin_react_hooks",
+      "frontend_package_json_eslint_plugin_react_refresh",
+      "frontend_package_json_globals",
+      "frontend_package_json_types_react",
+      "frontend_package_json_types_react_dom",
+      "frontend_package_json_vite",
+      "frontend_package_json_vitejs_plugin_react",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_eslint",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_eslint_js",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_eslint_plugin_react_hooks",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_eslint_plugin_react_refresh",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_globals",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_types_react",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_types_react_dom",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_vite",
+      "outpace_remove_claude_1784783014_frontend_package_devdependencies_vitejs_plugin_react",
+      "outpace_remove_claude_1784783014_frontend_package_json_vite"
+    ],
+    "3": [
+      "frontend_package",
+      "frontend_package_dependencies",
+      "frontend_package_dependencies_react",
+      "frontend_package_dependencies_react_dom",
+      "frontend_package_json_react",
+      "frontend_package_json_react_dom",
+      "frontend_package_name",
+      "frontend_package_private",
+      "frontend_package_scripts",
+      "frontend_package_scripts_build",
+      "frontend_package_scripts_dev",
+      "frontend_package_scripts_lint",
+      "frontend_package_scripts_preview",
+      "frontend_package_type",
+      "frontend_package_version",
+      "outpace_remove_claude_1784783014_frontend_package",
+      "outpace_remove_claude_1784783014_frontend_package_dependencies",
+      "outpace_remove_claude_1784783014_frontend_package_dependencies_react",
+      "outpace_remove_claude_1784783014_frontend_package_dependencies_react_dom",
+      "outpace_remove_claude_1784783014_frontend_package_json_react",
+      "outpace_remove_claude_1784783014_frontend_package_name",
+      "outpace_remove_claude_1784783014_frontend_package_private",
+      "outpace_remove_claude_1784783014_frontend_package_scripts",
+      "outpace_remove_claude_1784783014_frontend_package_scripts_build",
+      "outpace_remove_claude_1784783014_frontend_package_scripts_dev",
+      "outpace_remove_claude_1784783014_frontend_package_scripts_lint",
+      "outpace_remove_claude_1784783014_frontend_package_scripts_preview",
+      "outpace_remove_claude_1784783014_frontend_package_type",
+      "outpace_remove_claude_1784783014_frontend_package_version"
+    ],
+    "4": [
+      "outpace_remove_claude_1784783014_frontend_src_pages_cadencepage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_cadencepage_cadencepage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_cadencepage_state_labels",
+      "outpace_remove_claude_1784783014_frontend_src_pages_cadencepage_state_options",
+      "outpace_remove_claude_1784783014_frontend_src_pages_cadencepage_state_tag_class",
+      "outpace_remove_claude_1784783014_frontend_src_pages_runpage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_runpage_runpage",
+      "outpace_remove_claude_1784783014_frontend_src_utils_cadence",
+      "outpace_remove_claude_1784783014_frontend_src_utils_cadence_computenextfollowupdate",
+      "outpace_remove_claude_1784783014_frontend_src_utils_cadence_default_cadence_steps",
+      "outpace_remove_claude_1784783014_frontend_src_utils_cadence_isfollowupdue",
+      "outpace_remove_claude_1784783014_frontend_src_utils_cadence_parsecadencesteps",
+      "outpace_remove_claude_1784783014_frontend_src_utils_claudeapi",
+      "outpace_remove_claude_1784783014_frontend_src_utils_claudeapi_callclaude",
+      "outpace_remove_claude_1784783014_frontend_src_utils_demodata",
+      "outpace_remove_claude_1784783014_frontend_src_utils_demodata_extractfield",
+      "outpace_remove_claude_1784783014_frontend_src_utils_demodata_fallback",
+      "outpace_remove_claude_1784783014_frontend_src_utils_demodata_generatedemoemail",
+      "outpace_remove_claude_1784783014_frontend_src_utils_demodata_generatedemoresearch",
+      "outpace_remove_claude_1784783014_frontend_src_utils_feedback",
+      "outpace_remove_claude_1784783014_frontend_src_utils_feedback_buildfeedbackmemory",
+      "outpace_remove_claude_1784783014_frontend_src_utils_helpers_now",
+      "outpace_remove_claude_1784783014_frontend_src_utils_parsing",
+      "outpace_remove_claude_1784783014_frontend_src_utils_parsing_parsejsonresponse"
+    ],
+    "5": [
+      "outpace_remove_claude_1784783014_frontend_src_app",
+      "outpace_remove_claude_1784783014_frontend_src_app_app",
+      "outpace_remove_claude_1784783014_frontend_src_main",
+      "outpace_remove_claude_1784783014_frontend_src_pages_accountspage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_accountspage_accountspage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_feedbackpage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_feedbackpage_feedbackpage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_setuppage",
+      "outpace_remove_claude_1784783014_frontend_src_pages_setuppage_setuppage",
+      "outpace_remove_claude_1784783014_frontend_src_utils_helpers",
+      "outpace_remove_claude_1784783014_frontend_src_utils_helpers_loadfromstorage",
+      "outpace_remove_claude_1784783014_frontend_src_utils_helpers_savetostorage"
+    ],
+    "6": [
+      "claude_skills_brainstorming_scripts_helper",
+      "claude_skills_brainstorming_scripts_helper_connect",
+      "claude_skills_brainstorming_scripts_helper_nextreconnectdelay",
+      "claude_skills_brainstorming_scripts_helper_reloadafterrecovery",
+      "claude_skills_brainstorming_scripts_helper_sendevent",
+      "claude_skills_brainstorming_scripts_helper_sessionkey",
+      "claude_skills_brainstorming_scripts_helper_setstatus",
+      "claude_skills_brainstorming_scripts_helper_showtombstone",
+      "claude_skills_brainstorming_scripts_helper_websocketurl"
+    ],
+    "7": [
+      "backend_main",
+      "backend_main_call_claude",
+      "backend_main_clauderequest",
+      "backend_main_home",
+      "backend_main_py_basemodel",
+      "backend_main_py_get",
+      "backend_main_py_post"
+    ],
+    "8": [
+      "claude_skills_brainstorming_scripts_stop_server",
+      "claude_skills_brainstorming_scripts_stop_server_command_has_server_id",
+      "claude_skills_brainstorming_scripts_stop_server_command_line_for_pid",
+      "claude_skills_brainstorming_scripts_stop_server_is_brainstorm_server",
+      "claude_skills_brainstorming_scripts_stop_server_mark_stopped",
+      "claude_skills_brainstorming_scripts_stop_server_read_expected_server_id",
+      "claude_skills_brainstorming_scripts_stop_server_sh__entry"
+    ],
+    "9": [
+      "outpace_remove_claude_1784783014_backend_main",
+      "outpace_remove_claude_1784783014_backend_main_call_claude",
+      "outpace_remove_claude_1784783014_backend_main_clauderequest",
+      "outpace_remove_claude_1784783014_backend_main_home",
+      "outpace_remove_claude_1784783014_backend_main_py_basemodel",
+      "outpace_remove_claude_1784783014_backend_main_py_get",
+      "outpace_remove_claude_1784783014_backend_main_py_post"
+    ],
+    "10": [
+      "outpace_remove_claude_1784783014_package",
+      "outpace_remove_claude_1784783014_package_dependencies",
+      "outpace_remove_claude_1784783014_package_dependencies_lucide_react",
+      "package",
+      "package_dependencies",
+      "package_dependencies_lucide_react",
+      "package_json_lucide_react"
+    ],
+    "11": [
+      "claude_skills_brainstorming_scripts_start_server",
+      "claude_skills_brainstorming_scripts_start_server_is_windows_like_shell",
+      "claude_skills_brainstorming_scripts_start_server_sh__entry"
+    ],
+    "12": [
+      "frontend_eslint_config"
+    ],
+    "13": [
+      "frontend_vite_config"
+    ],
+    "14": [
+      "outpace_remove_claude_1784783014_frontend_eslint_config"
+    ],
+    "15": [
+      "outpace_remove_claude_1784783014_frontend_vite_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.060496067755595885,
+    "1": 0.1349206349206349,
+    "2": 0.08275862068965517,
+    "3": 0.06896551724137931,
+    "4": 0.213768115942029,
+    "5": 0.2878787878787879,
+    "6": 0.4166666666666667,
+    "7": 0.3333333333333333,
+    "8": 0.42857142857142855,
+    "9": 0.3333333333333333,
+    "10": 0.2857142857142857,
+    "11": 1.0,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0
+  },
+  "gods": [
+    {
+      "id": "claude_skills_brainstorming_scripts_server_handlerequest",
+      "label": "handleRequest()",
+      "degree": 14
+    },
+    {
+      "id": "claude_skills_brainstorming_scripts_server_startserver",
+      "label": "startServer()",
+      "degree": 10
+    },
+    {
+      "id": "frontend_src_pages_cadencepage_cadencepage",
+      "label": "CadencePage()",
+      "degree": 9
+    },
+    {
+      "id": "outpace_remove_claude_1784783014_frontend_src_pages_cadencepage_cadencepage",
+      "label": "CadencePage()",
+      "degree": 9
+    },
+    {
+      "id": "claude_skills_brainstorming_scripts_server_handleupgrade",
+      "label": "handleUpgrade()",
+      "degree": 8
+    },
+    {
+      "id": "frontend_src_pages_runpage_runpage",
+      "label": "RunPage()",
+      "degree": 7
+    },
+    {
+      "id": "frontend_src_utils_claudeapi_callclaude",
+      "label": "callClaude()",
+      "degree": 7
+    },
+    {
+      "id": "outpace_remove_claude_1784783014_frontend_src_pages_runpage_runpage",
+      "label": "RunPage()",
+      "degree": 7
+    },
+    {
+      "id": "outpace_remove_claude_1784783014_frontend_src_utils_claudeapi_callclaude",
+      "label": "callClaude()",
+      "degree": 7
+    },
+    {
+      "id": "claude_skills_brainstorming_scripts_helper_connect",
+      "label": "connect()",
+      "degree": 6
+    }
+  ],
+  "surprises": [
+    {
+      "source": "App()",
+      "target": "loadFromStorage()",
+      "source_files": [
+        "frontend/src/App.jsx",
+        "frontend/src/utils/helpers.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "App()",
+      "target": "saveToStorage()",
+      "source_files": [
+        "frontend/src/App.jsx",
+        "frontend/src/utils/helpers.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "CadencePage()",
+      "target": "computeNextFollowUpDate()",
+      "source_files": [
+        "frontend/src/pages/CadencePage.jsx",
+        "frontend/src/utils/cadence.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "CadencePage()",
+      "target": "isFollowUpDue()",
+      "source_files": [
+        "frontend/src/pages/CadencePage.jsx",
+        "frontend/src/utils/cadence.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "CadencePage()",
+      "target": "parseCadenceSteps()",
+      "source_files": [
+        "frontend/src/pages/CadencePage.jsx",
+        "frontend/src/utils/cadence.js"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `devDependencies` connect `Community 2` to `Community 3`?",
+      "why": "High betweenness centrality (0.027) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `devDependencies` connect `Community 2` to `Community 3`?",
+      "why": "High betweenness centrality (0.027) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 2 inferred relationships involving `startServer()` (e.g. with `handleRequest()` and `handleUpgrade()`) actually correct?",
+      "why": "`startServer()` has 2 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `clients`, `CONTENT_DIR`, `crypto` to the rest of the system?",
+      "why": "46 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.060496067755595885 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1349206349206349 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 2` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08275862068965517 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

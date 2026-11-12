@@ -1,0 +1,512 @@
+{
+  ".claude/skills/brainstorming/scripts/helper.js": {
+    "mtime": 1786514535.3306267,
+    "ast_hash": "09675b2c59e99fda34683b4d1da5a447",
+    "semantic_hash": "09675b2c59e99fda34683b4d1da5a447"
+  },
+  ".claude/skills/brainstorming/scripts/server.cjs": {
+    "mtime": 1786514535.996322,
+    "ast_hash": "8a3f2a627f887d08a3514a03133a2eb4",
+    "semantic_hash": "8a3f2a627f887d08a3514a03133a2eb4"
+  },
+  ".claude/skills/brainstorming/scripts/start-server.sh": {
+    "mtime": 1786514536.6408079,
+    "ast_hash": "99b51415f11ae9efe2a1936e8fdf5c91",
+    "semantic_hash": "99b51415f11ae9efe2a1936e8fdf5c91"
+  },
+  ".claude/skills/brainstorming/scripts/stop-server.sh": {
+    "mtime": 1786514537.3255413,
+    "ast_hash": "d7910763449edd43eed6da82c195ceb6",
+    "semantic_hash": "d7910763449edd43eed6da82c195ceb6"
+  },
+  "Outpace-remove-claude-1784783014/backend/main.py": {
+    "mtime": 1784783019.4893606,
+    "ast_hash": "566d8d7e7a27bccaca57e3f25be5646a",
+    "semantic_hash": "566d8d7e7a27bccaca57e3f25be5646a"
+  },
+  "Outpace-remove-claude-1784783014/frontend/eslint.config.js": {
+    "mtime": 1784783019.4946003,
+    "ast_hash": "fa91453358b56681481f75f81d1bfccd",
+    "semantic_hash": "fa91453358b56681481f75f81d1bfccd"
+  },
+  "Outpace-remove-claude-1784783014/frontend/package.json": {
+    "mtime": 1784783019.4974082,
+    "ast_hash": "8c57681d4e039a0a47d2f12119bd9cb7",
+    "semantic_hash": "8c57681d4e039a0a47d2f12119bd9cb7"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/App.jsx": {
+    "mtime": 1784783019.5001533,
+    "ast_hash": "911b1a13eff052d0e81cfbeb7107ff77",
+    "semantic_hash": "911b1a13eff052d0e81cfbeb7107ff77"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/main.jsx": {
+    "mtime": 1784783019.5001533,
+    "ast_hash": "51fd21c378330142b61bf8d1ef3795ef",
+    "semantic_hash": "51fd21c378330142b61bf8d1ef3795ef"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/pages/AccountsPage.jsx": {
+    "mtime": 1784783019.5076478,
+    "ast_hash": "b21f30b67ac13f4c7a566ca4fd02147b",
+    "semantic_hash": "b21f30b67ac13f4c7a566ca4fd02147b"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/pages/CadencePage.jsx": {
+    "mtime": 1784783019.5076478,
+    "ast_hash": "b922cf3f9873b8b9712629575708f6c2",
+    "semantic_hash": "b922cf3f9873b8b9712629575708f6c2"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/pages/FeedbackPage.jsx": {
+    "mtime": 1784783019.5076478,
+    "ast_hash": "864559e8a0fcdd72f186fc9f59b170ca",
+    "semantic_hash": "864559e8a0fcdd72f186fc9f59b170ca"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/pages/RunPage.jsx": {
+    "mtime": 1784783019.5132458,
+    "ast_hash": "c8edeef9efef5fefd4add8f2fb5afdde",
+    "semantic_hash": "c8edeef9efef5fefd4add8f2fb5afdde"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/pages/SetupPage.jsx": {
+    "mtime": 1784783019.5152574,
+    "ast_hash": "325039cb2e0bcaa9b8abffd2a02accbc",
+    "semantic_hash": "325039cb2e0bcaa9b8abffd2a02accbc"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/utils/cadence.js": {
+    "mtime": 1784783019.5174599,
+    "ast_hash": "71cc0140eb41596be21e2659fc822c45",
+    "semantic_hash": "71cc0140eb41596be21e2659fc822c45"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/utils/claudeApi.js": {
+    "mtime": 1784783019.5174599,
+    "ast_hash": "021e15307575e6a58e84b8f891e1c06e",
+    "semantic_hash": "021e15307575e6a58e84b8f891e1c06e"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/utils/demoData.js": {
+    "mtime": 1784783019.5174599,
+    "ast_hash": "e1bbafd916eb0bc05b9e55a0394be9c7",
+    "semantic_hash": "e1bbafd916eb0bc05b9e55a0394be9c7"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/utils/feedback.js": {
+    "mtime": 1784783019.5174599,
+    "ast_hash": "799c5960bd73ddf630ab4009f2f6cdba",
+    "semantic_hash": "799c5960bd73ddf630ab4009f2f6cdba"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/utils/helpers.js": {
+    "mtime": 1784783019.5174599,
+    "ast_hash": "9047c6ffb4257c64b0c4c201cb32c5ab",
+    "semantic_hash": "9047c6ffb4257c64b0c4c201cb32c5ab"
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/utils/parsing.js": {
+    "mtime": 1784783019.5174599,
+    "ast_hash": "fb90e61e8e88844f01a3394b0d646f5c",
+    "semantic_hash": "fb90e61e8e88844f01a3394b0d646f5c"
+  },
+  "Outpace-remove-claude-1784783014/frontend/vite.config.js": {
+    "mtime": 1784783019.5174599,
+    "ast_hash": "199e1221ae03d6974fdc8b5e23787b98",
+    "semantic_hash": "199e1221ae03d6974fdc8b5e23787b98"
+  },
+  "Outpace-remove-claude-1784783014/package.json": {
+    "mtime": 1784783019.5224125,
+    "ast_hash": "70caf7942299ea1a50aafb94140db07f",
+    "semantic_hash": "70caf7942299ea1a50aafb94140db07f"
+  },
+  "backend/main.py": {
+    "mtime": 1793649862.010153,
+    "ast_hash": "012dc8ead66118a47e49942f2171f8e9",
+    "semantic_hash": ""
+  },
+  "frontend/eslint.config.js": {
+    "mtime": 1780136627.3507996,
+    "ast_hash": "3aa4b57d7f08181d86bde52a4dcb7f22",
+    "semantic_hash": "3aa4b57d7f08181d86bde52a4dcb7f22"
+  },
+  "frontend/package.json": {
+    "mtime": 1780649261.4485497,
+    "ast_hash": "d29bd06033a79c8438d03b4285523c56",
+    "semantic_hash": "d29bd06033a79c8438d03b4285523c56"
+  },
+  "frontend/src/App.jsx": {
+    "mtime": 1794211600.4805913,
+    "ast_hash": "be915f3586ec899e576c2f2b6fc80088",
+    "semantic_hash": ""
+  },
+  "frontend/src/main.jsx": {
+    "mtime": 1786513273.9329293,
+    "ast_hash": "782970e72e6372a389421d455825626a",
+    "semantic_hash": "782970e72e6372a389421d455825626a"
+  },
+  "frontend/src/pages/AccountsPage.jsx": {
+    "mtime": 1794206633.7647257,
+    "ast_hash": "8c0a3178b012e523231a63f223eb77cb",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/CadencePage.jsx": {
+    "mtime": 1794206650.7347834,
+    "ast_hash": "d042056b54425f2c2511f07172f24bc9",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/FeedbackPage.jsx": {
+    "mtime": 1794206625.7594264,
+    "ast_hash": "6bd3d5f39744728bc31938d035cacd4e",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/RunPage.jsx": {
+    "mtime": 1794206648.9541585,
+    "ast_hash": "46ff4b3639a83e8da326c941487d8199",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/SetupPage.jsx": {
+    "mtime": 1794206625.553043,
+    "ast_hash": "ec681ea299bbc4dea68b4e75eb8e09e9",
+    "semantic_hash": ""
+  },
+  "frontend/src/utils/cadence.js": {
+    "mtime": 1786513494.9355812,
+    "ast_hash": "9414a16a5a702622d14451c31a7f440a",
+    "semantic_hash": "9414a16a5a702622d14451c31a7f440a"
+  },
+  "frontend/src/utils/demoData.js": {
+    "mtime": 1793649869.5407314,
+    "ast_hash": "4618370eda20a3eafbec7245951272fe",
+    "semantic_hash": ""
+  },
+  "frontend/src/utils/feedback.js": {
+    "mtime": 1783424695.431031,
+    "ast_hash": "684c1bdf1bb4f830ac9b0f3e9d0434fe",
+    "semantic_hash": "684c1bdf1bb4f830ac9b0f3e9d0434fe"
+  },
+  "frontend/src/utils/helpers.js": {
+    "mtime": 1780789666.188847,
+    "ast_hash": "9047c6ffb4257c64b0c4c201cb32c5ab",
+    "semantic_hash": "9047c6ffb4257c64b0c4c201cb32c5ab"
+  },
+  "frontend/src/utils/parsing.js": {
+    "mtime": 1793649881.0120096,
+    "ast_hash": "e8ae8a627382eca6c2ee4239cb6482b6",
+    "semantic_hash": ""
+  },
+  "frontend/vite.config.js": {
+    "mtime": 1793647474.0021017,
+    "ast_hash": "5f95af7d4a0a180317fc1e00b4e0ad05",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1781263592.1747725,
+    "ast_hash": "f1b74d37bb575d03bdca92f0cbbe3f2f",
+    "semantic_hash": "f1b74d37bb575d03bdca92f0cbbe3f2f"
+  },
+  ".claude/skills/brainstorming/SKILL.md": {
+    "mtime": 1786514532.7866669,
+    "ast_hash": "4d874bd6828d088f95aa67831eb6b257",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brainstorming/scripts/frame-template.html": {
+    "mtime": 1786514534.680707,
+    "ast_hash": "c9ad9e4a9ace03e9af4fc1e5be104fa4",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brainstorming/spec-document-reviewer-prompt.md": {
+    "mtime": 1786514533.3985322,
+    "ast_hash": "64a9f03fe422e92da8391e80673b6500",
+    "semantic_hash": ""
+  },
+  ".claude/skills/brainstorming/visual-companion.md": {
+    "mtime": 1786514534.0113435,
+    "ast_hash": "85ea99a0b41133bcf0adc0d678516d37",
+    "semantic_hash": ""
+  },
+  ".claude/skills/codebase-design/DEEPENING.md": {
+    "mtime": 1786514584.785686,
+    "ast_hash": "2e14795cf50abe04a6cb1d6cbb57d5f0",
+    "semantic_hash": ""
+  },
+  ".claude/skills/codebase-design/DESIGN-IT-TWICE.md": {
+    "mtime": 1786514585.3730266,
+    "ast_hash": "bbb290e6c86c07a8aa1d7be2768be5a4",
+    "semantic_hash": ""
+  },
+  ".claude/skills/codebase-design/SKILL.md": {
+    "mtime": 1786514584.113669,
+    "ast_hash": "bba82452bae25a9187c8ce076406d752",
+    "semantic_hash": ""
+  },
+  ".claude/skills/codebase-design/agents/openai.yaml": {
+    "mtime": 1786514585.960736,
+    "ast_hash": "c27ba4232198f8b0318014a8c715cc01",
+    "semantic_hash": ""
+  },
+  ".claude/skills/frontend-design/LICENSE.txt": {
+    "mtime": 1786514530.3301954,
+    "ast_hash": "2ee41112a44fe7014dce33e26468ba93",
+    "semantic_hash": ""
+  },
+  ".claude/skills/frontend-design/SKILL.md": {
+    "mtime": 1786514529.692054,
+    "ast_hash": "31c633612585bf2dd4e6d1103afc9f33",
+    "semantic_hash": ""
+  },
+  ".claude/skills/improve-codebase-architecture/HTML-REPORT.md": {
+    "mtime": 1786514531.6141198,
+    "ast_hash": "751df2fdf436e9539123d6ebc70c1e86",
+    "semantic_hash": ""
+  },
+  ".claude/skills/improve-codebase-architecture/SKILL.md": {
+    "mtime": 1786514531.003052,
+    "ast_hash": "1e90da772a72db852cc314a1e0dd1e36",
+    "semantic_hash": ""
+  },
+  ".claude/skills/improve-codebase-architecture/agents/openai.yaml": {
+    "mtime": 1786514532.1981723,
+    "ast_hash": "e73ee28ebe885ee90bec6f34554efdd1",
+    "semantic_hash": ""
+  },
+  ".claude/skills/writing-plans/SKILL.md": {
+    "mtime": 1786514586.5607,
+    "ast_hash": "251db017c72337b5ff5f833298ec0881",
+    "semantic_hash": ""
+  },
+  ".claude/skills/writing-plans/plan-document-reviewer-prompt.md": {
+    "mtime": 1786514587.1389334,
+    "ast_hash": "62253134237279d1fb6f7c12eebac14f",
+    "semantic_hash": ""
+  },
+  "CLAUDE.md": {
+    "mtime": 1786514910.1626024,
+    "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/README.md": {
+    "mtime": 1784783019.4893606,
+    "ast_hash": "54e5593ac9f0750b7f7c425dc37060ab",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/backend/requirements.txt": {
+    "mtime": 1784783019.4919984,
+    "ast_hash": "5638df7d9afc0269add7a5d7f69be401",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/frontend/README.md": {
+    "mtime": 1784783019.4919984,
+    "ast_hash": "abfa161e3e5434e3e85394bf03d387a4",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/frontend/index.html": {
+    "mtime": 1784783019.4946003,
+    "ast_hash": "3420d19b2e673276cd6dc1c8da89bf00",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1793649916.824617,
+    "ast_hash": "375cccdbc262afcb150d945f4c375e40",
+    "semantic_hash": ""
+  },
+  "backend/requirements.txt": {
+    "mtime": 1793649862.9044328,
+    "ast_hash": "eb21ca9381d68f9d264a9e61f8a59bb3",
+    "semantic_hash": ""
+  },
+  "frontend/README.md": {
+    "mtime": 1780136627.5713015,
+    "ast_hash": "a28dc4cb878325f3e9e5649f3e1469ac",
+    "semantic_hash": ""
+  },
+  "frontend/index.html": {
+    "mtime": 1794206653.109723,
+    "ast_hash": "bff1d13d2f610fbe9d1cf3cddb7f8928",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/frontend/public/favicon.svg": {
+    "mtime": 1784783019.5001533,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/frontend/public/icons.svg": {
+    "mtime": 1784783019.5001533,
+    "ast_hash": "21c7473c592c67dc87223d49892c8f0a",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/assets/hero.png": {
+    "mtime": 1784783019.5001533,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/assets/react.svg": {
+    "mtime": 1784783019.5001533,
+    "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/frontend/src/assets/vite.svg": {
+    "mtime": 1784783019.5001533,
+    "ast_hash": "6d5180a782d64c8cf51ba01c2a2184d8",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Accounts-2.png": {
+    "mtime": 1784783019.5268173,
+    "ast_hash": "d0ba2ad69c23953e1bfd89e1ddff2f9a",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Accounts.png": {
+    "mtime": 1784783019.528872,
+    "ast_hash": "1f479d2417be94d0a80341d645b770ea",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Feedback-2.png": {
+    "mtime": 1784783019.530883,
+    "ast_hash": "bdabf8050fd85cc98e2749cb03804ab8",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Feedback.png": {
+    "mtime": 1784783019.5348315,
+    "ast_hash": "9fd76ad64857c35d6f67cdadf934af0e",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Run-2.png": {
+    "mtime": 1784783019.5348315,
+    "ast_hash": "8d902a8156e1274e3936ae96bbfb908b",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Run-3.png": {
+    "mtime": 1784783019.5348315,
+    "ast_hash": "d7ef4c7212b181cdd3647bdde9b3339d",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Run.png": {
+    "mtime": 1784783019.5348315,
+    "ast_hash": "35df242908286aa17818016da5050bff",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/Setup-2.png": {
+    "mtime": 1784783019.5348315,
+    "ast_hash": "f57711a475567a8decac4f7f4148afb5",
+    "semantic_hash": ""
+  },
+  "Outpace-remove-claude-1784783014/screenshots/setup.png": {
+    "mtime": 1784783019.5498161,
+    "ast_hash": "e6208813fa79c9065995cf76f9ece9d3",
+    "semantic_hash": ""
+  },
+  "frontend/public/favicon.svg": {
+    "mtime": 1794211598.7821052,
+    "ast_hash": "7f324b0bb257fd90441b15588b3a87f4",
+    "semantic_hash": ""
+  },
+  "frontend/public/icons.svg": {
+    "mtime": 1780136627.7779377,
+    "ast_hash": "3b4fcfcf393eca4d264dca4a4663bc37",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/hero.png": {
+    "mtime": 1780136627.6395147,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/react.svg": {
+    "mtime": 1780136627.8284285,
+    "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/vite.svg": {
+    "mtime": 1780136627.8742764,
+    "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": ""
+  },
+  "screenshots/Accounts-2.png": {
+    "mtime": 1784003322.8460984,
+    "ast_hash": "d0ba2ad69c23953e1bfd89e1ddff2f9a",
+    "semantic_hash": ""
+  },
+  "screenshots/Accounts.png": {
+    "mtime": 1784003315.4116971,
+    "ast_hash": "1f479d2417be94d0a80341d645b770ea",
+    "semantic_hash": ""
+  },
+  "screenshots/Feedback-2.png": {
+    "mtime": 1784003442.714887,
+    "ast_hash": "bdabf8050fd85cc98e2749cb03804ab8",
+    "semantic_hash": ""
+  },
+  "screenshots/Feedback.png": {
+    "mtime": 1784003433.8308387,
+    "ast_hash": "9fd76ad64857c35d6f67cdadf934af0e",
+    "semantic_hash": ""
+  },
+  "screenshots/Run-2.png": {
+    "mtime": 1784003397.2676523,
+    "ast_hash": "8d902a8156e1274e3936ae96bbfb908b",
+    "semantic_hash": ""
+  },
+  "screenshots/Run-3.png": {
+    "mtime": 1784003411.78571,
+    "ast_hash": "d7ef4c7212b181cdd3647bdde9b3339d",
+    "semantic_hash": ""
+  },
+  "screenshots/Run.png": {
+    "mtime": 1784003385.5115998,
+    "ast_hash": "35df242908286aa17818016da5050bff",
+    "semantic_hash": ""
+  },
+  "screenshots/Setup-2.png": {
+    "mtime": 1784003302.0541337,
+    "ast_hash": "f57711a475567a8decac4f7f4148afb5",
+    "semantic_hash": ""
+  },
+  "screenshots/setup.png": {
+    "mtime": 1784003270.1049957,
+    "ast_hash": "e6208813fa79c9065995cf76f9ece9d3",
+    "semantic_hash": ""
+  },
+  "backend/email_sender.py": {
+    "mtime": 1793647447.4977777,
+    "ast_hash": "56153b74dab09363563a88c98a76be22",
+    "semantic_hash": ""
+  },
+  "backend/send_test_email.py": {
+    "mtime": 1792603395.7401288,
+    "ast_hash": "af9394c646c807dd60547678dd3336ec",
+    "semantic_hash": ""
+  },
+  ".claude/skills/grill-me/SKILL.md": {
+    "mtime": 1786515677.8347864,
+    "ast_hash": "d07c47e3f0ffefd2c28354eb81a1e831",
+    "semantic_hash": ""
+  },
+  ".claude/skills/grill-me/agents/openai.yaml": {
+    "mtime": 1786515678.4101875,
+    "ast_hash": "aff7b6f7b10220e3b4537c42a2d08917",
+    "semantic_hash": ""
+  },
+  ".claude/skills/grilling/SKILL.md": {
+    "mtime": 1786515706.4570363,
+    "ast_hash": "9f7179e83f79d9a62d6ee9c250e46592",
+    "semantic_hash": ""
+  },
+  ".claude/skills/grilling/agents/openai.yaml": {
+    "mtime": 1786515707.0228853,
+    "ast_hash": "d419e97c73f1073f678e284cfdd904dc",
+    "semantic_hash": ""
+  },
+  "frontend/src/utils/emailApi.js": {
+    "mtime": 1793647472.2321522,
+    "ast_hash": "85feaeafcb27cc9dc787a97d28aec754",
+    "semantic_hash": ""
+  },
+  "Outpace-Interview-Guide.pdf": {
+    "mtime": 1793474827.3017285,
+    "ast_hash": "9a81c992b9bab1bb019cd0825f156df5",
+    "semantic_hash": ""
+  },
+  "backend/llm.py": {
+    "mtime": 1794214182.7080846,
+    "ast_hash": "d2aad35910448533c7633fd75d46cd3d",
+    "semantic_hash": ""
+  },
+  "frontend/src/utils/llmApi.js": {
+    "mtime": 1793649878.9678736,
+    "ast_hash": "2782ad046a569ccc71eccd4a513a10bf",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/Icons.jsx": {
+    "mtime": 1794211597.942111,
+    "ast_hash": "12ff234ef032844d28c4ec252953a968",
+    "semantic_hash": ""
+  }
+}

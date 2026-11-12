@@ -147,7 +147,7 @@ const summary = results.reduce(
                     className="btn btn-secondary btn-sm"
                     style={
                       isSelected
-                        ? { borderColor: "var(--accent)", color: "var(--accent)" }
+                        ? { borderColor: "var(--accent-border)", color: "var(--accent-text)", background: "var(--accent-soft)" }
                         : {}
                     }
                     onClick={() =>

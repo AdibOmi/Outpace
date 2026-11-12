@@ -32,14 +32,14 @@
 
 /* Secondary note text below the company name */
 .accounts-company-notes {
-  color: var(--text3);
+  color: var(--text-muted);
   font-size: 11px;
   margin-top: 2px;
 }
 
 /* Sub-text below the contact name */
 .accounts-contact-title {
-  color: var(--text3);
+  color: var(--text-muted);
   font-size: 11px;
 }
 

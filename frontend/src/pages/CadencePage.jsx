@@ -6,7 +6,8 @@
 
 import { useRef, useState } from "react";
 import { now } from "../utils/helpers";
-import { callClaude } from "../utils/claudeApi";
+import { callLLM } from "../utils/llmApi";
+import { deliverEmail } from "../utils/emailApi";
 import { parseJsonResponse } from "../utils/parsing";
 import { buildFeedbackMemory } from "../utils/feedback";
 import {
@@ -15,6 +16,7 @@ import {
   isFollowUpDue,
   parseCadenceSteps,
 } from "../utils/cadence";
+import { Sparkle } from "../components/Icons";
 import "./CadencePage.css";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -220,7 +222,7 @@ This will be follow-up #${nextStep} of ${cadenceSteps.length}.
 
     let generated;
     try {
-      const raw = await callClaude(FOLLOWUP_SYSTEM, userPrompt);
+      const raw = await callLLM(FOLLOWUP_SYSTEM, userPrompt);
       try {
         generated = parseJsonResponse(raw);
       } catch {
@@ -239,8 +241,20 @@ This will be follow-up #${nextStep} of ${cadenceSteps.length}.
       return;
     }
 
-    // Simulated send delay, matching RunPage's behaviour.
-    await new Promise((resolve) => window.setTimeout(resolve, 600));
+    let delivery;
+    try {
+      delivery = await deliverEmail(config, {
+        to: account.email,
+        subject: generated.subject,
+        body: generated.body,
+        // Thread the follow-up under the initial email in the prospect's inbox.
+        inReplyTo: initialResult?.messageId,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      addLog(`[${account.company}] ✗ Send failed: ${errorMessage}`, "err");
+      return;
+    }
 
     const sentAt = new Date();
 
@@ -257,6 +271,9 @@ This will be follow-up #${nextStep} of ${cadenceSteps.length}.
         body: generated.body,
         sentAt: sentAt.toISOString(),
         status: "sent",
+        delivery: delivery.delivery,
+        deliveredTo: delivery.deliveredTo,
+        messageId: delivery.messageId,
       },
     ]);
 
@@ -275,7 +292,12 @@ This will be follow-up #${nextStep} of ${cadenceSteps.length}.
       )
     );
 
-    addLog(`[${account.company}] ✓ Follow-up ${nextStep} sent`, "ok");
+    addLog(
+      delivery.delivery === "simulated"
+        ? `[${account.company}] ✓ Follow-up ${nextStep} sent (simulated)`
+        : `[${account.company}] ✓ Follow-up ${nextStep} sent to ${delivery.deliveredTo}`,
+      "ok"
+    );
   };
 
   // ── Manual per-row override ──────────────────────────────────────────────
@@ -420,8 +442,9 @@ This will be follow-up #${nextStep} of ${cadenceSteps.length}.
                 Stop
               </button>
             ) : (
-              <button className="btn btn-primary" onClick={runDueFollowUps} disabled={busy || dueCount === 0}>
-                ▶ Run due follow-ups
+              <button className="btn btn-ai" onClick={runDueFollowUps} disabled={busy || dueCount === 0}>
+                <Sparkle />
+                Run due follow-ups
               </button>
             )}
           </div>

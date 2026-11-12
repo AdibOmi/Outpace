@@ -5,11 +5,19 @@
 
 import { useRef, useState } from "react";
 import { now } from "../utils/helpers";
-import { callClaude } from "../utils/claudeApi";
+import { callLLM } from "../utils/llmApi";
+import { deliverEmail } from "../utils/emailApi";
 import { parseJsonResponse } from "../utils/parsing";
 import { buildFeedbackMemory } from "../utils/feedback";
 import { DEFAULT_CADENCE_STEPS, computeNextFollowUpDate } from "../utils/cadence";
+import { Sparkle } from "../components/Icons";
 import "./RunPage.css";
+
+const DELIVERY_LABELS = {
+  simulate: "simulated (nothing is sent)",
+  test: "test inbox",
+  live: "LIVE to prospects",
+};
 
 export default function RunPage({
   config = {},
@@ -91,6 +99,10 @@ You are a world-class B2B sales researcher.
 Produce a concise, actionable research brief connecting the account's
 business context to the seller's service.
 
+Use web search to find recent, specific facts about the account (news,
+funding, hiring, product launches, leadership changes) and base the brief on
+what you find rather than on generic assumptions.
+
 Service context:
 ${config.serviceDescription || "Not provided"}
 
@@ -100,7 +112,8 @@ ${config.icp || "Not provided"}
 Research guidelines:
 ${config.researchGuide || "Not provided"}
 
-Return only valid JSON with this structure:
+Your final answer must be only valid JSON (no prose before or after) with
+this structure:
 
 {
   "pain_points": ["..."],
@@ -187,13 +200,17 @@ ${config.senderName || "the sender"}
 
       const account = pendingAccounts[index];
 
+      // Kept outside the try so a failed send still records what was drafted.
+      let research;
+      let generatedEmail;
+
       try {
         // ── Step 1: Research ──────────────────────────────────────────────
         updateAccountStatus(account.id, "researching");
 
         addLog(`[${account.company}] Researching account...`);
 
-        const researchRaw = await callClaude(
+        const researchRaw = await callLLM(
           RESEARCH_SYSTEM,
           `
 Account:
@@ -213,10 +230,9 @@ ${account.notes || "Not provided"}
 
 Email:
 ${account.email || "Not provided"}
-`
+`,
+          { webSearch: true }
         );
-
-        let research;
 
         try {
           research = parseJsonResponse(researchRaw);
@@ -246,7 +262,7 @@ ${account.email || "Not provided"}
 
         addLog(`[${account.company}] Drafting personalised email...`);
 
-        const emailRaw = await callClaude(
+        const emailRaw = await callLLM(
           EMAIL_SYSTEM,
           `
 Current contact:
@@ -269,8 +285,6 @@ ${JSON.stringify(research, null, 2)}
 `
         );
 
-        let generatedEmail;
-
         try {
           generatedEmail = parseJsonResponse(emailRaw);
         } catch {
@@ -292,11 +306,13 @@ ${JSON.stringify(research, null, 2)}
           "ok"
         );
 
-        // ── Step 3: Simulated sending ─────────────────────────────────────
+        // ── Step 3: Send (simulated, test inbox, or live) ─────────────────
         addLog(`[${account.company}] Sending to ${account.email}...`);
 
-        await new Promise((resolve) => {
-          window.setTimeout(resolve, 600);
+        const delivery = await deliverEmail(config, {
+          to: account.email,
+          subject: generatedEmail.subject,
+          body: generatedEmail.body,
         });
 
         const sentAt = new Date();
@@ -307,6 +323,9 @@ ${JSON.stringify(research, null, 2)}
           research,
           generatedEmail,
           sentAt: sentAt.toISOString(),
+          delivery: delivery.delivery,
+          deliveredTo: delivery.deliveredTo,
+          messageId: delivery.messageId,
         };
 
         setAccounts((previousAccounts) =>
@@ -328,7 +347,12 @@ ${JSON.stringify(research, null, 2)}
         );
         saveResult(newResult);
 
-        addLog(`[${account.company}] ✓ Sent successfully`, "ok");
+        addLog(
+          delivery.delivery === "simulated"
+            ? `[${account.company}] ✓ Sent (simulated — no email left the app)`
+            : `[${account.company}] ✓ Sent to ${delivery.deliveredTo}`,
+          "ok"
+        );
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error);
@@ -339,6 +363,8 @@ ${JSON.stringify(research, null, 2)}
           ...account,
           status: "error",
           errorMessage,
+          research,
+          generatedEmail,
           sentAt: new Date().toISOString(),
         };
 
@@ -373,6 +399,17 @@ ${JSON.stringify(research, null, 2)}
   // ── Stop campaign after the current account finishes ────────────────────
   const stop = () => {
     abortRef.current = true;
+  };
+
+  // ── Requeue errored accounts (and any left mid-step by a page reload) ───
+  const retryFailed = () => {
+    setAccounts((previousAccounts) =>
+      previousAccounts.map((account) =>
+        ["error", "researching", "drafting"].includes(account.status)
+          ? { ...account, status: "pending" }
+          : account
+      )
+    );
   };
 
   // ── Account-level statistics ─────────────────────────────────────────────
@@ -471,7 +508,8 @@ ${JSON.stringify(research, null, 2)}
             <h3>Campaign controls</h3>
 
             <p className="sub run-controls-sub">
-              {accounts.length} total accounts · {pendingCount} waiting
+              {accounts.length} total accounts · {pendingCount} waiting ·
+              delivery: {DELIVERY_LABELS[config.deliveryMode || "simulate"]}
             </p>
           </div>
 
@@ -484,15 +522,27 @@ ${JSON.stringify(research, null, 2)}
                 Stop
               </button>
             ) : (
-              <button
-                className="btn btn-primary"
-                onClick={runCampaign}
-                disabled={pendingCount === 0}
-              >
-                {processedCount > 0
-                  ? "▶ Run pending accounts"
-                  : "▶ Start campaign"}
-              </button>
+              <>
+                {errorCount + inProgressCount > 0 && (
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={retryFailed}
+                  >
+                    ↻ Retry {errorCount + inProgressCount} failed
+                  </button>
+                )}
+
+                <button
+                  className="btn btn-ai"
+                  onClick={runCampaign}
+                  disabled={pendingCount === 0}
+                >
+                  <Sparkle />
+                  {processedCount > 0
+                    ? "Run pending accounts"
+                    : "Start campaign"}
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -597,7 +647,7 @@ ${JSON.stringify(research, null, 2)}
               style={{
                 borderBottom:
                   index < uniqueResults.length - 1
-                    ? "1px solid var(--border)"
+                    ? "1px solid var(--border-subtle)"
                     : "none",
               }}
             >

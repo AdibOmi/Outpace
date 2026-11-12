@@ -222,6 +222,52 @@ export default function SetupPage({ config, setConfig, onNext }) {
         />
       </div>
 
+      {/* ── Email delivery ── */}
+      <div className="card">
+        <h3>Email delivery</h3>
+        <p className="sub">
+          Choose where outreach goes. Test mode routes every email to your own
+          inbox so you can check real deliverability without contacting prospects.
+        </p>
+
+        <div className="field">
+          <label>Delivery mode</label>
+          <select
+            value={config.deliveryMode || "simulate"}
+            onChange={(e) => {
+              const mode = e.target.value;
+              if (
+                mode === "live" &&
+                !window.confirm(
+                  "Live mode sends real emails to every account's address. Continue?"
+                )
+              ) {
+                return;
+              }
+              setConfig((prev) => ({ ...prev, deliveryMode: mode }));
+            }}
+          >
+            <option value="simulate">Simulate — nothing is sent</option>
+            <option value="test">Test — send everything to my test inbox</option>
+            <option value="live">Live — send to prospects</option>
+          </select>
+        </div>
+
+        {config.deliveryMode === "test" && (
+          <div className="field">
+            <label>Test inbox</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={config.testRecipient || ""}
+              onChange={(e) =>
+                setConfig((prev) => ({ ...prev, testRecipient: e.target.value }))
+              }
+            />
+          </div>
+        )}
+      </div>
+
       {/* ── Continue button ── */}
       <div className="setup-footer">
         <button

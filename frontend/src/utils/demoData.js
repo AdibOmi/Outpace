@@ -1,7 +1,7 @@
 // ─── demoData.js ─────────────────────────────────────────────────────────────
 // Generates plausible research/email JSON so the campaign flow can be
 // exercised end-to-end without a working Anthropic API key. Used by
-// claudeApi.js as a fallback when the real API call fails.
+// llmApi.js as a fallback when the real API call fails.
 
 function extractField(text, label) {
   const match = String(text ?? "").match(new RegExp(`${label}:\\s*\\n(.+)`));

@@ -88,7 +88,7 @@ export default function AccountsPage({ accounts, setAccounts, setRunResults, set
 
     setAccounts((prev) => [
       ...prev,
-      { ...manualForm, id: Date.now(), status: "pending" },
+      { ...manualForm, id: crypto.randomUUID(), status: "pending" },
     ]);
 
     // Reset form fields
@@ -241,10 +241,11 @@ export default function AccountsPage({ accounts, setAccounts, setRunResults, set
               </tr>
             </thead>
             <tbody>
-              {accounts.map((account) => (
+              {accounts.map((account, index) => (
                 <tr key={account.id}>
                   {/* Company name + optional notes */}
                   <td>
+                    <span className={`data-dot data-dot-${index % 4}`} aria-hidden="true" />
                     <strong className="accounts-company-name">
                       {account.company}
                     </strong>
